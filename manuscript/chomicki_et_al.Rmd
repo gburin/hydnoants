@@ -1,0 +1,749 @@
+---
+author: Guillaume Chomicki1*, Gustavo G. Burin2, Toby ??, Susanne S. Renner3
+title: The effects of mutualism on trait evolution
+output:
+  pdf_document:
+    toc: true
+    extra_dependencies: ["float"]
+    latex_engine: xelatex
+  html_document:
+    toc: true
+    toc_float: true
+header-includes:
+  - \usepackage{pdflscape}
+---
+
+Submitted to Ecology Letters, Evolution or Evolution Letters – well let’s see what we find!
+
+Affiliations: 1Department of Bioscience, Durham University, Stockton Rd., Durham DH1 3LE, UK. 2University of Sao Paulo, xxxxx. 3Systematic Botany and Mycology, Department of Biology, University of Munich (LMU), Menzinger Str. 67, 80638 Munich, Germany.
+
+Correspondence: *guillaume.chomicki@durham.ac.uk
+
+
+# Summary [215 words]
+
+Mutualisms, the interactions of distinct species where all partner benefits have hypothesized to be important evolutionary forces. 
+
+# Introduction
+
+Well-sampled and resolved available for the Hydnophytinae – largest ant-plant clade with 3 distinct strategies – generalists and facultative, specialized (and often obligate), and species that have secondarily lost the mutualism -> Highly replicated clade to study the impact of mutualism on trait evolution
+
+In a previous study (Chomicki and Renner 2017 PNAS), we studied a trait that is directly linked to the mutualism (the size of domatium entrance hole – which filters symbionts by size) is tightly linked to the evolution of mutualistic strategies: the pace of trait evolution is lowest in specialized species, consistent with stabilizing selection, higher in generalist and facultative species, and highest in species that have lost the symbiosis, consistent with a release from the stabilizing selection pressure.
+
+While a few studies (both empirical and theoretical), like this one, looked at how mutualism should affect the evolution of traits directly involved in the interaction, very few (if any) looked at how mutualism impact trait evolution more generally. This is the aim of the present study.
+
+The aim is to unveil indirect effects of mutualism on trait evolution and quantify them.
+
+Examples will likely include the indirect effect of the evolution of specialized mutualism on pollination systems -> ant/pollinator conflicts -> evolution of selfing
+
+Other example includes allometry (cf. Chomicki and Renner 2019 Sci Rep).
+
+The main difficulty is that we have to deal with continuous and discrete traits. BAMM allows to get tips rate for continuous trait evolution, but not yet for discrete traits. 
+
+Key problem: how can we get a common framework to analyse continuous and discrete traits and ask how mutualism strategies affects trait evolution?
+
+Dependent variable of interest: Mutualistic strategy (i.e. no mutualism [outgroups], generalist mutualism, specialized mutualism, secondary loss of ant mutualism).
+
+Traits (maybe a couple of others I can’t think of right now):
+
+Continuous traits:
+Domatium entrance hole diameter
+Leaf area
+Stem cross-section area
+Flower size
+
+Discrete traits:
+Plant architecture (single stem vs. multi-stems)
+Domatium growth type (diffuse vs. apical)
+Warts inside domatium (absent, present – undifferentiated, present – differentiated)
+Post-anthetic flower nectary rewards (present vs. absent)
+Reproduction system (heterostylous vs. homostylous – more details to be added)
+Domatium compartmentalization (compartmentalized vs. non-compartmentalized)
+
+We will need to also take into account climatic variables – as they can also influence trait evolution in addition to mutualism – e.g leaf size cf Chomicki and Renner 2019 Sci Rep.
+
+
+# Plan
+
+Get a way to get a comparable metric for the pace of trait evolution – tips rate
+
+Analyze in a common framework e.g. path analysis how mutualism affects distinct traits (will need climate in as well).
+
+Map the direct and indirect effects of mutualism on trait evolution. Does mutualism influences distinct traits in different ways (in terms of morphorate)?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# "Formal" Introduction
+
+Mutualisms, the interactions of distinct species where all partner benefits have hypothesized to be important evolutionary forces (ref, ref, ref). With regard to phenotypic evolution, the traits of the partner species that are in direct interactions are thought to be those where selection is greatest (refs). Yet, divergent hypotheses have been put forward to explain the role of mutualisms. The Red Queen hypothesis (Van Valen, 1973) posits that interacting organisms are in constant conflicts, imposing each partner to ‘run to stay in the same place’ leading to coevolutionary arms race between partners. The Red Queen hypothesis has been mostly used as a framework to study antagonistic coevolution between in parasitism and to a lower extent competition. However, it could apply to mutualisms if partners are constantly in conflicts. Mutualism theory predicts that selection should favour cheaters that do not reciprocate since they enjoy a higher fitness by taking the benefits without paying the costs (Trivers, 1971; Axelrod and Hamilton, 1981; ref, ref). Thus, if partners are constantly trying to get more and pay less, we could expect that traits involved in the interaction should fast as a result of the mutualism. By contrast, another body of literature suggest the contrary, namely that mutualistic partners exert stabilizing selections on each other, which leads to trait matching (Thompson, 2005; Kopp and Gavrilets, 2006; Raimundo et al., 2014). A broader theoretical framework incorporating this idea put forwards, also with reference to Lewis Carol’s (1871) ‘Through the looking glass’, with a Red King instead of a Red Queen (Bergstrom and Lachmann, 2003). The Red King, like a king in chess, stay in place and waits for everything to be done for him. The Red King hypothesis thus posits that the slowest runner wins the race, meaning that traits involve in the interaction should evolve very slowly. This can be visualized as a lock and key system wherein trait change means going out of this peak of fitness and reduces the benefits harnessed from mutualism.
+	The picture becomes more complex when taking into consideration the various dependences of mutualisms. Mutualisms range from loose, facultative interactions with a large range of partners to tight obligate obligations with a specific partner. In the Red Queen scenario, more obligate mutualisms should have higher rates of trait evolution than facultative ones and conversely in the Red King scenario, we should expect that obligate mutualists will show the slowest pace of trait evolution. A corollary of these expectations is that the loss of mutualistic interaction will lead to a relaxation of stabilizing coevolution (sensu Chomicki et al., 2019) and hence fast trait evolution in the Red King scenario but not in the Red Queen scenario where the stop in conflicts should theoretically lead to slower trait evolution. Past research using empirical systems shows mixed evidence. In specialized pollination systems, floral traits of plants pollinated by oil bees shows conservatism for 70 million years, with very little trait evolution (Davis et al., 2014). In the symbiotic epiphytic ant plant clade Hydnophytinae, a key trait is the size of entrance holes into the plant-made nesting structure (domatium) as it directly filters possible symbionts by size. Specialists’ entrance holes show the slowest rate of evolutionary rate, while generalists have higher rates and species which have secondarily lost the symbiosis have the highest rate of change, consistent with the Red King model (Chomicki and Renner, 2017). In other systems, notably in a number of specialized pollination systems, coevolutionary arms race similar to those found in host-parasite systems have been found (ref, ref, ref).
+	
+Here we ask what is the effect of mutualism on trait evolution more generally. Moreover, we extend the question beyond the interaction-related traits. Our specific hypotheses are (i) when a Red King dynamics occurs, other traits will be affected. When a Red Queen dynamics occur, traits unrelated to the interactions will be less coupled to the presence of mutualism. We address this at two scales. First at a global scale using pollination by animals across and seed dispersal across the seed plants. Second, we zoom on a clade of ant-plants which shows a replicated evolutionary history of various mutualisms dependences. Our study clarifies the role of mutualisms in trait evolution. 
+
+\newpage
+
+# Methods
+
+```{r setup, eval = FALSE}
+
+source("../R/tree_plots.R")
+library("knitr")
+library("RColorBrewer")
+#load("../output/first_analysis.RData")
+knitr::opts_chunk$set(fig.pos = "h", out.extra = "")
+source("../R/ouwie_summary_mcc.R")
+aicc.table <- read.csv("../output/fullaicc_table.csv")
+pars.table <- read.csv("../output/fullpar_table.csv")
+colors <- setNames(brewer.pal(4, "Set1"), 1:4)
+
+```
+
+## MCC tree
+
+- 1000 reconstructions of each discrete trait (namely Mutualistic Strategy, Presence of Warts, Presence of Reward, Plant Architecture, Domatium growth type, Mating System, Leaf Structure and Presence of appendages)
+- Sampled 100 reconstructions and performed continuous trait evolution analysis (Stem Area, Leaf Area, Corolla Length and Petiole Length)
+- Fitted 7 models:
+  - Single-rate Brownian Motion (BM1 - 1 parameter)
+  - Multiple-rate Brownian Motion (BMS - 3 parameters)
+  - Simple OU (OU1 - 3 parameters)
+  - OU with different optima but same alpha and sigma (OUM - 5 parameters)
+  - OU with different optima and alpha but same sigma (OUMA - 7 parameters)
+  - OU with different optima and sigma but same alpha (OUMV - 7 parameters)
+  - OU with different optima, alpha, and sigma (OUMVA - 9 parameters)
+
+## Phylogenetic Uncertainty
+
+We sampled 100 trees from the posterior distribution of trees and replicate the analyses done with the MCC tree. As the results are not expected to drastically change, we can start moving forward with the MCC results for now.
+
+# Results
+
+## MCC tree
+
+### Raw Data
+
+First, figure 1 shows the tree with associated data just for us to have a visual idea of how traits are distributed:
+
+```{r tree_data, fig.height = 11, fig.width = 9, fig.cap = "Hydnophytinae tree with associated discrete traits (inner rings) and continuous traits (outer rings). Legend still needs to be fixed.", echo = FALSE, fig.pos = "ht", message = FALSE, warning = FALSE}
+
+p3 + theme(legend.box = "vertical")
+
+```
+
+\newpage
+
+# Ancestral State Reconstruction of Mutualistic Strategy
+
+The following figure represents the summary of 1000 stochastic maps for each discrete trait, that were summarized for each node.
+
+## Evolution of continuous traits based on states of discrete traits
+
+Lastly, we fitted all 7 models of leaf area evolution to 10 sampled evolutionary histories of mutualistic strategy, which are summarized in table 1.
+
+```{r aic_ouwie, echo = FALSE, message = FALSE, warning = FALSE}
+
+aicc.summary <- aggregate(factor(aicc.table$best), by = list(aicc.table$trait, aicc.table$variable), FUN = table)
+aicc.summary <- cbind(aicc.summary[,-ncol(aicc.summary)], aicc.summary[[ncol(aicc.summary)]])
+names(aicc.summary)[1:2] <- c("Discrete.Trait", "Continuous.Trait")
+
+kable(aicc.summary, format = "pandoc")
+
+```
+
+Overall, the best models are based on single- or multiple-peak OU (with probably the exception of Stem Area depending on Mating System). Therefore, we plotted the $\theta$ values for each continuous trait based on the states of each discrete trait.
+
+```{r pars_ouwie_setup, echo = FALSE, message = FALSE, warning = FALSE}
+
+library("cowplot")
+library("patchwork")
+
+data.plot <- reshape2::melt(pars.table)
+names(data.plot)[4] <- "parameter"
+
+theta.plot <- data.plot[grep("theta", data.plot$parameter),]
+alpha.plot <- data.plot[grep("alpha", data.plot$parameter),]
+sigma.plot <- data.plot[grep("sigma", data.plot$parameter),]
+
+```
+
+## Appendages
+
+```{r asr_app, fig.height = 7.5, fig.width = 6, fig.cap = "Ancestral state reconstruction for Appendages. Pie charts at each node correspond to the summarized probability of each state for a given node.", echo = FALSE, fig.pos = "ht", message = FALSE, warning = FALSE}
+
+plot(sum.simmap.app, offset = 0.5, fsize = 0.5, colors = colors)
+add.simmap.legend(leg = c("None", "Variable", "Spines"), colors = colors, x = 2, y = 4, prompt = FALSE)
+
+```
+
+```{r results = 'asis', echo = FALSE}
+if (knitr::is_latex_output()) {
+    cat("\\begin{landscape}")
+}
+```
+
+```{r pars_ouwie_app, echo = FALSE, message = FALSE, warning = FALSE, fig.width = 13, fig.height = 9, fig.cap = "Distribution of Theta (A), Alpha (B) and Sigma (C) values for the OU-based models for each continuous trait in association with different states of Appendage."}
+
+theta.app <- ggplot(subset(theta.plot[grep("OUM", theta.plot$model),], trait == "Appendages")) +
+    geom_point(aes(x = parameter, y = value, colour = parameter), alpha = 0.1) +
+    stat_summary(aes(x = parameter, y = value), fun = "mean", geom = "point", size = 3, shape = 4) +
+    scale_x_discrete(labels = c("None", "Variable", "Spines", "")) +
+    theme_cowplot() +
+    coord_flip() +
+    ylim(-10, 10) +
+    coord_flip() +
+    labs(x = "Parameter", y = "Value") +
+    facet_grid(variable ~ model) +
+    theme(legend.position = "none",
+          strip.background.y = element_blank(),
+          strip.text.y = element_blank(),
+          axis.title.x = element_blank())
+
+alpha.app <- ggplot(subset(alpha.plot[grep("OUM", alpha.plot$model),], trait == "Appendages")) +
+    geom_point(aes(x = parameter, y = value, colour = parameter), alpha = 0.1) +
+    stat_summary(aes(x = parameter, y = value), fun = "mean", geom = "point", size = 3, shape = 4) +
+    scale_x_discrete(labels = c("None", "Variable", "Spines", "")) +
+    theme_cowplot() +
+    coord_flip() +
+    ylim(-10, 10) +
+    labs(x = "Parameter", y = "Value") +
+    facet_grid(variable ~ model) +
+    theme(legend.position = "none",
+          axis.text.y = element_blank(),
+          axis.title.y = element_blank(),
+          strip.background.y = element_blank(),
+          strip.text.y = element_blank())
+
+sigma.app <- ggplot(subset(sigma.plot[grep("OUM", sigma.plot$model),], trait == "Appendages")) +
+    geom_point(aes(x = parameter, y = value, colour = parameter), alpha = 0.1) +
+    stat_summary(aes(x = parameter, y = value), fun = "mean", geom = "point", size = 3, shape = 4) +
+    scale_x_discrete(labels = c("None", "Variable", "Spines", "")) +
+    theme_cowplot() +
+    coord_flip() +
+    ylim(-10, 10) +
+    labs(x = "Parameter", y = "Value") +
+    facet_grid(variable ~ model) +
+    theme(legend.position = "none",
+          axis.text.y = element_blank(),
+          axis.title.y = element_blank(),
+          axis.title.x = element_blank())
+
+(theta.app + alpha.app + sigma.app) +
+    plot_annotation(tag_levels = 'A')
+
+```
+
+```{r results = 'asis', echo = FALSE}
+if (knitr::is_latex_output()) {
+    cat("\\end{landscape}")
+}
+```
+
+## Architecture
+
+```{r asr_arch, fig.height = 7.5, fig.width = 6, fig.cap = "Ancestral state reconstruction of Architecture. Pie charts at each node correspond to the summarized probability of each state for a given node.", echo = FALSE, fig.pos = "ht", message = FALSE, warning = FALSE}
+
+plot(sum.simmap.arch, offset = 0.5, fsize = 0.5, colors = colors)
+add.simmap.legend(leg = c("Multiple", "Single", "Shrub"), colors = colors, x = 2, y = 4, prompt = FALSE)
+
+```
+
+```{r results = 'asis', echo = FALSE}
+if (knitr::is_latex_output()) {
+    cat("\\begin{landscape}")
+}
+```
+
+```{r pars_ouwie_arch, echo = FALSE, message = FALSE, warning = FALSE, fig.width = 13, fig.height = 9, fig.cap = "Distribution of Theta (A), Alpha (B) and Sigma (C) values for the OU-based models for each continuous trait in association with different states of Architecture."}
+
+theta.arch <- ggplot(subset(theta.plot[grep("OUM", theta.plot$model),], trait == "Architecture")) +
+    geom_point(aes(x = parameter, y = value, colour = parameter), alpha = 0.1) +
+    stat_summary(aes(x = parameter, y = value), fun = "mean", geom = "point", size = 3, shape = 4) +
+    scale_x_discrete(labels = c("Multiple", "Single", "Shrub", "")) +
+    theme_cowplot() +
+    coord_flip() +
+    ylim(-10, 10) +
+    labs(x = "Parameter", y = "Value") +
+    facet_grid(variable ~ model) +
+    theme(legend.position = "none",
+          strip.background.y = element_blank(),
+          strip.text.y = element_blank(),
+          axis.title.x = element_blank())
+
+alpha.arch <- ggplot(subset(alpha.plot[grep("OUM", alpha.plot$model),], trait == "Architecture")) +
+    geom_point(aes(x = parameter, y = value, colour = parameter), alpha = 0.1) +
+    stat_summary(aes(x = parameter, y = value), fun = "mean", geom = "point", size = 3, shape = 4) +
+    scale_x_discrete(labels = c("Multiple", "Single", "Shrub", "")) +
+    theme_cowplot() +
+    coord_flip() +
+    ylim(-10, 10) +
+    labs(x = "Parameter", y = "Value") +
+    facet_grid(variable ~ model) +
+    theme(legend.position = "none",
+          axis.text.y = element_blank(),
+          axis.title.y = element_blank(),
+          strip.background.y = element_blank(),
+          strip.text.y = element_blank())
+
+sigma.arch <- ggplot(subset(sigma.plot[grep("OUM", sigma.plot$model),], trait == "Architecture")) +
+    geom_point(aes(x = parameter, y = value, colour = parameter), alpha = 0.1) +
+    stat_summary(aes(x = parameter, y = value), fun = "mean", geom = "point", size = 3, shape = 4) +
+    scale_x_discrete(labels = c("Multiple", "Single", "", "")) +
+    theme_cowplot() +
+    coord_flip() +
+    ylim(-10, 10) +
+    labs(x = "Parameter", y = "Value") +
+    facet_grid(variable ~ model) +
+    theme(legend.position = "none",
+          axis.text.y = element_blank(),
+          axis.title.y = element_blank(),
+          axis.title.x = element_blank())
+
+(theta.arch + alpha.arch + sigma.arch) + plot_annotation(tag_levels = 'A')
+
+```
+
+```{r results = 'asis', echo = FALSE}
+if (knitr::is_latex_output()) {
+    cat("\\end{landscape}")
+}
+```
+
+## Domatium Growth
+
+```{r asr_domgrow, fig.height = 7.5, fig.width = 6, fig.cap = "Ancestral state reconstruction of Domatium Growth. Pie charts at each node correspond to the summarized probability of each state for a given node.", echo = FALSE, fig.pos = "ht", message = FALSE, warning = FALSE}
+
+plot(sum.simmap.domgrow, offset = 0.5, fsize = 0.5, colors = colors)
+add.simmap.legend(leg = c("Diffuse", "Apical"), colors = colors, x = 2, y = 4, prompt = FALSE)
+
+```
+
+```{r results = 'asis', echo = FALSE}
+if (knitr::is_latex_output()) {
+    cat("\\begin{landscape}")
+}
+```
+
+```{r pars_ouwie_domgrow, echo = FALSE, message = FALSE, warning = FALSE, fig.width = 13, fig.height = 9, fig.cap = "Distribution of Theta (A), Alpha (B) and Sigma (C) values for the OU-based models for each continuous trait in association with different states of Domatium Growth."}
+
+theta.domgrow <- ggplot(subset(theta.plot[grep("OUM", theta.plot$model),], trait == "Domatium.Growth")) +
+    geom_point(aes(x = parameter, y = value, colour = parameter), alpha = 0.1) +
+    stat_summary(aes(x = parameter, y = value), fun = "mean", geom = "point", size = 3, shape = 4) +
+    scale_x_discrete(labels = c("Diffuse", "Apical", "", "")) +
+    theme_cowplot() +
+    coord_flip() +
+    ylim(-10, 10) +
+    labs(x = "Parameter", y = "Value") +
+    facet_grid(variable ~ model) +
+    theme(legend.position = "none",
+          strip.background.y = element_blank(),
+          strip.text.y = element_blank(),
+          axis.title.x = element_blank())
+
+alpha.domgrow <- ggplot(subset(alpha.plot[grep("OUM", alpha.plot$model),], trait == "Domatium.Growth")) +
+    geom_point(aes(x = parameter, y = value, colour = parameter), alpha = 0.1) +
+    stat_summary(aes(x = parameter, y = value), fun = "mean", geom = "point", size = 3, shape = 4) +
+    scale_x_discrete(labels = c("Diffuse", "Apical", "", "")) +
+    theme_cowplot() +
+    coord_flip() +
+    ylim(-10, 10) +
+    labs(x = "Parameter", y = "Value") +
+    facet_grid(variable ~ model) +
+    theme(legend.position = "none",
+          axis.text.y = element_blank(),
+          axis.title.y = element_blank(),
+          strip.background.y = element_blank(),
+          strip.text.y = element_blank())
+
+sigma.domgrow <- ggplot(subset(sigma.plot[grep("OUM", sigma.plot$model),], trait == "Domatium.Growth")) +
+    geom_point(aes(x = parameter, y = value, colour = parameter), alpha = 0.1) +
+    stat_summary(aes(x = parameter, y = value), fun = "mean", geom = "point", size = 3, shape = 4) +
+    scale_x_discrete(labels = c("Diffuse", "Apical", "", "")) +
+    theme_cowplot() +
+    coord_flip() +
+    ylim(-10, 10) +
+    labs(x = "Parameter", y = "Value") +
+    facet_grid(variable ~ model) +
+    theme(legend.position = "none",
+          axis.text.y = element_blank(),
+          axis.title.y = element_blank(),
+          axis.title.x = element_blank())
+
+(theta.domgrow + alpha.domgrow + sigma.domgrow) + plot_annotation(tag_levels = 'A')
+
+```
+
+```{r results = 'asis', echo = FALSE}
+if (knitr::is_latex_output()) {
+    cat("\\end{landscape}")
+}
+```
+
+## Leaf Structure
+
+```{r asr_leafstr, fig.height = 7.5, fig.width = 6, fig.cap = "Ancestral state reconstruction of Leaf Structure. Pie charts at each node correspond to the summarized probability of each state for a given node.", echo = FALSE, fig.pos = "ht", message = FALSE, warning = FALSE}
+
+plot(sum.simmap.leafstr, offset = 0.5, fsize = 0.5, colors = setNames(colors, 0:3))
+add.simmap.legend(leg = c("Thick", "Variable", "Thin", "Succulent"), colors = setNames(colors, 0:3), x = 2, y = 4, prompt = FALSE)
+
+```
+
+```{r results = 'asis', echo = FALSE}
+if (knitr::is_latex_output()) {
+    cat("\\begin{landscape}")
+}
+```
+
+```{r pars_ouwie_leafstr, echo = FALSE, message = FALSE, warning = FALSE, fig.width = 13, fig.height = 9, fig.cap = "Distribution of Theta (A), Alpha (B) and Sigma (C) values for the OU-based models for each continuous trait in association with different states of Leaf Structure."}
+
+theta.leafstr <- ggplot(subset(theta.plot[grep("OUM", theta.plot$model),], trait == "Leaf.Structure")) +
+    geom_point(aes(x = parameter, y = value, colour = parameter), alpha = 0.1) +
+    stat_summary(aes(x = parameter, y = value), fun = "mean", geom = "point", size = 3, shape = 4) +
+    scale_x_discrete(labels = c("Thick", "Variable", "Thin", "Succulent")) +
+    theme_cowplot() +
+    coord_flip() +
+    ylim(-10, 10) +
+    labs(x = "Parameter", y = "Value") +
+    facet_grid(variable ~ model) +
+    theme(legend.position = "none",
+          strip.background.y = element_blank(),
+          strip.text.y = element_blank(),
+          axis.title.x = element_blank())
+
+alpha.leafstr <- ggplot(subset(alpha.plot[grep("OUM", alpha.plot$model),], trait == "Leaf.Structure")) +
+    geom_point(aes(x = parameter, y = value, colour = parameter), alpha = 0.1) +
+    stat_summary(aes(x = parameter, y = value), fun = "mean", geom = "point", size = 3, shape = 4) +
+    scale_x_discrete(labels = c("Thick", "Variable", "Thin", "Succulent")) +
+    theme_cowplot() +
+    coord_flip() +
+    ylim(-10, 10) +
+    labs(x = "Parameter", y = "Value") +
+    facet_grid(variable ~ model) +
+    theme(legend.position = "none",
+          axis.text.y = element_blank(),
+          axis.title.y = element_blank(),
+          strip.background.y = element_blank(),
+          strip.text.y = element_blank())
+
+sigma.leafstr <- ggplot(subset(sigma.plot[grep("OUM", sigma.plot$model),], trait == "Leaf.Structure")) +
+    geom_point(aes(x = parameter, y = value, colour = parameter), alpha = 0.1) +
+    stat_summary(aes(x = parameter, y = value), fun = "mean", geom = "point", size = 3, shape = 4) +
+    scale_x_discrete(labels = c("Thick", "Variable", "Thin", "Succulent")) +
+    theme_cowplot() +
+    coord_flip() +
+    ylim(-10, 10) +
+    labs(x = "Parameter", y = "Value") +
+    facet_grid(variable ~ model) +
+    theme(legend.position = "none",
+          axis.text.y = element_blank(),
+          axis.title.y = element_blank(),
+          axis.title.x = element_blank())
+
+(theta.leafstr + alpha.leafstr + sigma.leafstr) + plot_annotation(tag_levels = 'A')
+
+```
+
+```{r results = 'asis', echo = FALSE}
+if (knitr::is_latex_output()) {
+    cat("\\end{landscape}")
+}
+```
+
+## Mating System
+
+```{r asr_matsys, fig.height = 7.5, fig.width = 6, fig.cap = "Ancestral state reconstruction of Mating System. Pie charts at each node correspond to the summarized probability of each state for a given node.", echo = FALSE, fig.pos = "ht", message = FALSE, warning = FALSE}
+
+plot(sum.simmap.matsys, offset = 0.5, fsize = 0.5, colors = setNames(colors, 0:3))
+add.simmap.legend(leg = c("Heterostylous", "Non-heterostylous", "Functionally Unisexual"), colors = setNames(colors, 0:3), x = 2, y = 4, prompt = FALSE)
+
+```
+
+```{r results = 'asis', echo = FALSE}
+if (knitr::is_latex_output()) {
+    cat("\\begin{landscape}")
+}
+```
+
+```{r pars_ouwie_matsys, echo = FALSE, message = FALSE, warning = FALSE, fig.width = 13, fig.height = 9, fig.cap = "Distribution of Theta (A), Alpha (B) and Sigma (C) values for the OU-based models for each continuous trait in association with different states of Mating System."}
+
+theta.matsys <- ggplot(subset(theta.plot[grep("OUM", theta.plot$model),], trait == "Mating.System")) +
+    geom_point(aes(x = parameter, y = value, colour = parameter), alpha = 0.1) +
+    stat_summary(aes(x = parameter, y = value), fun = "mean", geom = "point", size = 3, shape = 4) +
+    scale_x_discrete(labels = c("Heterostylous", "Non-\nheterostylous", "Functionally\nUnisexual", "")) +
+    theme_cowplot() +
+    coord_flip() +
+    ylim(-10, 10) +
+    labs(x = "Parameter", y = "Value") +
+    facet_grid(variable ~ model) +
+    theme(legend.position = "none",
+          strip.background.y = element_blank(),
+          strip.text.y = element_blank(),
+          axis.title.x = element_blank())
+
+alpha.matsys <- ggplot(subset(alpha.plot[grep("OUM", alpha.plot$model),], trait == "Mating.System")) +
+    geom_point(aes(x = parameter, y = value, colour = parameter), alpha = 0.1) +
+    stat_summary(aes(x = parameter, y = value), fun = "mean", geom = "point", size = 3, shape = 4) +
+    scale_x_discrete(labels = c("Heterostylous", "Non-\nheterostylous", "Functionally\nUnisexual", "")) +
+    theme_cowplot() +
+    coord_flip() +
+    ylim(-10, 10) +
+    labs(x = "Parameter", y = "Value") +
+    facet_grid(variable ~ model) +
+    theme(legend.position = "none",
+          axis.text.y = element_blank(),
+          axis.title.y = element_blank(),
+          strip.background.y = element_blank(),
+          strip.text.y = element_blank())
+
+sigma.matsys <- ggplot(subset(sigma.plot[grep("OUM", sigma.plot$model),], trait == "Mating.System")) +
+    geom_point(aes(x = parameter, y = value, colour = parameter), alpha = 0.1) +
+    stat_summary(aes(x = parameter, y = value), fun = "mean", geom = "point", size = 3, shape = 4) +
+    scale_x_discrete(labels = c("Heterostylous", "Non-\nheterostylous", "Functionally\nUnisexual", "")) +
+    theme_cowplot() +
+    coord_flip() +
+    ylim(-10, 10) +
+    labs(x = "Parameter", y = "Value") +
+    facet_grid(variable ~ model) +
+    theme(legend.position = "none",
+          axis.text.y = element_blank(),
+          axis.title.y = element_blank(),
+          axis.title.x = element_blank())
+
+(theta.matsys + alpha.matsys + sigma.matsys) + plot_annotation(tag_levels = 'A')
+
+```
+
+```{r results = 'asis', echo = FALSE}
+if (knitr::is_latex_output()) {
+    cat("\\end{landscape}")
+}
+```
+
+## Reward
+
+```{r asr_reward, fig.height = 7.5, fig.width = 6, fig.cap = "Ancestral state reconstruction of Reward. Pie charts at each node correspond to the summarized probability of each state for a given node.", echo = FALSE, fig.pos = "ht", message = FALSE, warning = FALSE}
+
+plot(sum.simmap.reward, offset = 0.5, fsize = 0.5, colors = colors)
+add.simmap.legend(leg = c("Absent", "Present"), colors = colors, x = 2, y = 4, prompt = FALSE)
+
+```
+
+```{r results = 'asis', echo = FALSE}
+if (knitr::is_latex_output()) {
+    cat("\\begin{landscape}")
+}
+```
+
+```{r pars_ouwie_reward, echo = FALSE, message = FALSE, warning = FALSE, fig.width = 13, fig.height = 9, fig.cap = "Distribution of Theta (A), Alpha (B) and Sigma (C) values for the OU-based models for each continuous trait in association with different states of Reward."}
+
+theta.reward <- ggplot(subset(theta.plot[grep("OUM", theta.plot$model),], trait == "Reward")) +
+    geom_point(aes(x = parameter, y = value, colour = parameter), alpha = 0.1) +
+    stat_summary(aes(x = parameter, y = value), fun = "mean", geom = "point", size = 3, shape = 4) +
+    scale_x_discrete(labels = c("Absent", "Present", "", "")) +
+    theme_cowplot() +
+    coord_flip() +
+    ylim(-10, 10) +
+    labs(x = "Parameter", y = "Value") +
+    facet_grid(variable ~ model) +
+    theme(legend.position = "none",
+          strip.background.y = element_blank(),
+          strip.text.y = element_blank(),
+          axis.title.x = element_blank())
+
+alpha.reward <- ggplot(subset(alpha.plot[grep("OUM", alpha.plot$model),], trait == "Reward")) +
+    geom_point(aes(x = parameter, y = value, colour = parameter), alpha = 0.1) +
+    stat_summary(aes(x = parameter, y = value), fun = "mean", geom = "point", size = 3, shape = 4) +
+    scale_x_discrete(labels = c("Absent", "Present", "", "")) +
+    theme_cowplot() +
+    coord_flip() +
+    ylim(-10, 10) +
+    labs(x = "Parameter", y = "Value") +
+    facet_grid(variable ~ model) +
+    theme(legend.position = "none",
+          axis.text.y = element_blank(),
+          axis.title.y = element_blank(),
+          strip.background.y = element_blank(),
+          strip.text.y = element_blank())
+
+sigma.reward <- ggplot(subset(sigma.plot[grep("OUM", sigma.plot$model),], trait == "Reward")) +
+    geom_point(aes(x = parameter, y = value, colour = parameter), alpha = 0.1) +
+    stat_summary(aes(x = parameter, y = value), fun = "mean", geom = "point", size = 3, shape = 4) +
+    scale_x_discrete(labels = c("Absent", "Present", "", "")) +
+    theme_cowplot() +
+    coord_flip() +
+    ylim(-10, 10) +
+    labs(x = "Parameter", y = "Value") +
+    facet_grid(variable ~ model) +
+    theme(legend.position = "none",
+          axis.text.y = element_blank(),
+          axis.title.y = element_blank(),
+          axis.title.x = element_blank())
+
+(theta.reward + alpha.reward + sigma.reward) + plot_annotation(tag_levels = 'A')
+
+```
+
+```{r results = 'asis', echo = FALSE}
+if (knitr::is_latex_output()) {
+    cat("\\end{landscape}")
+}
+```
+
+## Strategy
+
+```{r asr_strategy, fig.height = 7.5, fig.width = 6, fig.cap = "Ancestral state reconstruction of mutualistic strategy. Pie charts at each node correspond to the summarized probability of each state for a given node.", echo = FALSE, fig.pos = "ht", message = FALSE, warning = FALSE}
+
+plot(sum.simmap.strategy, offset = 0.5, fsize = 0.5, colors = colors)
+add.simmap.legend(leg = c("Facultative", "Obligate", "Lost"), colors = colors, x = 2, y = 4, prompt = FALSE)
+
+```
+
+```{r results = 'asis', echo = FALSE}
+if (knitr::is_latex_output()) {
+    cat("\\begin{landscape}")
+}
+```
+
+```{r pars_ouwie_strategy, echo = FALSE, message = FALSE, warning = FALSE, fig.width = 13, fig.height = 9, fig.cap = "Distribution of Theta (A), Alpha (B) and Sigma (C) values for the OU-based models for each continuous trait in association with different states of Strategy."}
+
+theta.strategy <- ggplot(subset(theta.plot[grep("OUM", theta.plot$model),], trait == "Strategy")) +
+    geom_point(aes(x = parameter, y = value, colour = parameter), alpha = 0.1) +
+    stat_summary(aes(x = parameter, y = value), fun = "mean", geom = "point", size = 3, shape = 4) +
+    scale_x_discrete(labels = c("Facultative", "Obligate", "Lost", "")) +
+    theme_cowplot() +
+    coord_flip() +
+    ylim(-10, 10) +
+    labs(x = "Parameter", y = "Value") +
+    facet_grid(variable ~ model) +
+    theme(legend.position = "none",
+          strip.background.y = element_blank(),
+          strip.text.y = element_blank(),
+          axis.title.x = element_blank())
+
+alpha.strategy <- ggplot(subset(alpha.plot[grep("OUM", alpha.plot$model),], trait == "Strategy")) +
+    geom_point(aes(x = parameter, y = value, colour = parameter), alpha = 0.1) +
+    stat_summary(aes(x = parameter, y = value), fun = "mean", geom = "point", size = 3, shape = 4) +
+    scale_x_discrete(labels = c("Facultative", "Obligate", "Lost", "")) +
+    theme_cowplot() +
+    coord_flip() +
+    ylim(-10, 10) +
+    labs(x = "Parameter", y = "Value") +
+    facet_grid(variable ~ model) +
+    theme(legend.position = "none",
+          axis.text.y = element_blank(),
+          axis.title.y = element_blank(),
+          strip.background.y = element_blank(),
+          strip.text.y = element_blank())
+
+sigma.strategy <- ggplot(subset(sigma.plot[grep("OUM", sigma.plot$model),], trait == "Strategy")) +
+    geom_point(aes(x = parameter, y = value, colour = parameter), alpha = 0.1) +
+    stat_summary(aes(x = parameter, y = value), fun = "mean", geom = "point", size = 3, shape = 4) +
+    scale_x_discrete(labels = c("Facultative", "Obligate", "Lost", "")) +
+    theme_cowplot() +
+    coord_flip() +
+    ylim(-10, 10) +
+    labs(x = "Parameter", y = "Value") +
+    facet_grid(variable ~ model) +
+    theme(legend.position = "none",
+          axis.text.y = element_blank(),
+          axis.title.y = element_blank(),
+          axis.title.x = element_blank())
+
+(theta.strategy + alpha.strategy + sigma.strategy) + plot_annotation(tag_levels = 'A')
+
+```
+
+```{r results = 'asis', echo = FALSE}
+if (knitr::is_latex_output()) {
+    cat("\\end{landscape}")
+}
+```
+
+## Warts
+
+```{r asr_warts, fig.height = 7.5, fig.width = 6, fig.cap = "Ancestral state reconstruction of Warts. Pie charts at each node correspond to the summarized probability of each state for a given node.", echo = FALSE, fig.pos = "ht", message = FALSE, warning = FALSE}
+
+plot(sum.simmap.warts, offset = 0.5, fsize = 0.5, colors = setNames(colors, 0:3))
+add.simmap.legend(leg = c("Absent", "Lost", "Differentiated", "Variable"), colors = setNames(colors, 0:3), x = 2, y = 4, prompt = FALSE)
+
+```
+
+```{r results = 'asis', echo = FALSE}
+if (knitr::is_latex_output()) {
+    cat("\\begin{landscape}")
+}
+```
+
+```{r pars_ouwie_warts, echo = FALSE, message = FALSE, warning = FALSE, fig.width = 13, fig.height = 9, fig.cap = "Distribution of Theta (A), Alpha (B) and Sigma (C) values for the OU-based models for each continuous trait in association with different states of Warts."}
+
+theta.warts <- ggplot(subset(theta.plot[grep("OUM", theta.plot$model),], trait == "Warts")) +
+    geom_point(aes(x = parameter, y = value, colour = parameter), alpha = 0.1) +
+    stat_summary(aes(x = parameter, y = value), fun = "mean", geom = "point", size = 3, shape = 4) +
+    scale_x_discrete(labels = c("Absent", "Lost", "Differentiated", "Variable")) +
+    theme_cowplot() +
+    coord_flip() +
+    ylim(-10, 10) +
+    labs(x = "Parameter", y = "Value") +
+    facet_grid(variable ~ model) +
+    theme(legend.position = "none",
+          strip.background.y = element_blank(),
+          strip.text.y = element_blank(),
+          axis.title.x = element_blank())
+
+alpha.warts <- ggplot(subset(alpha.plot[grep("OUM", alpha.plot$model),], trait == "Warts")) +
+    geom_point(aes(x = parameter, y = value, colour = parameter), alpha = 0.1) +
+    stat_summary(aes(x = parameter, y = value), fun = "mean", geom = "point", size = 3, shape = 4) +
+    scale_x_discrete(labels = c("Absent", "Lost", "Differentiated", "Variable")) +
+    theme_cowplot() +
+    coord_flip() +
+    ylim(-10, 10) +
+    labs(x = "Parameter", y = "Value") +
+    facet_grid(variable ~ model) +
+    theme(legend.position = "none",
+          axis.text.y = element_blank(),
+          axis.title.y = element_blank(),
+          strip.background.y = element_blank(),
+          strip.text.y = element_blank())
+
+sigma.warts <- ggplot(subset(sigma.plot[grep("OUM", sigma.plot$model),], trait == "Warts")) +
+    geom_point(aes(x = parameter, y = value, colour = parameter), alpha = 0.1) +
+    stat_summary(aes(x = parameter, y = value), fun = "mean", geom = "point", size = 3, shape = 4) +
+    scale_x_discrete(labels = c("Absent", "Lost", "Differentiated", "Variable")) +
+    theme_cowplot() +
+    coord_flip() +
+    ylim(-10, 10) +
+    labs(x = "Parameter", y = "Value") +
+    facet_grid(variable ~ model) +
+    theme(legend.position = "none",
+          axis.text.y = element_blank(),
+          axis.title.y = element_blank(),
+          axis.title.x = element_blank())
+
+(theta.warts + alpha.warts + sigma.warts) + plot_annotation(tag_levels = 'A')
+
+```
+
+```{r results = 'asis', echo = FALSE}
+if (knitr::is_latex_output()) {
+    cat("\\end{landscape}")
+}
+```
+
+```{r}
+
+
+```

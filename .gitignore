@@ -37,3 +37,38 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+
+
+# Tex/Log files
+*.log
+*.tex
+
+# Emacs backup files
+*#*
+*~
+
+# Excel spreadsheets
+*.xls
+*.xlsx
+
+# Compressed tree files
+data/posterior_trees_large.zip
+
+# nohup log files
+*.err
+
+# RDS/RData files (just to avoid problems with large files on commits)
+*.RDS
+*.RData
+
+# Annoying FreeOffice backup files
+*.bak
+
+# Temp directories from rmarkdown
+*_files/
+
+# Output from posterior analyses (too many large files)
+output/posterior_trees/
+
+# RDS files
+*.RDS

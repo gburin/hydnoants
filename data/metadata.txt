@@ -1,0 +1,85 @@
+Warts (inner domatium tissue differentiation, key to ant-derived nutrient uptake, c.f. Chomicki and Renner (2019, New Phytol).
+
+ 
+
+0: No domatia (no warts)
+
+1: Variable 
+
+2: Fully differentiated
+
+3: No warts (i.e. domatia present, but warts secondarily lost)
+
+ 
+
+Food rewards
+
+0: Outgroup (no domatia)
+
+1: Absent
+
+2: Present
+
+ 
+
+Plant architecture
+
+ 
+
+0: Outgroup, shrub
+
+1: Multi-stems
+
+2: Single-stem
+
+ 
+
+Domatium growth
+
+ 
+
+0: Outgroup, no domatia
+
+1: Diffuse growth
+
+2: Apical growth
+
+ 
+
+Mating system
+
+0: Heterostylous
+
+1: Non-heterostylous
+
+2: Functionally unisexual
+
+ 
+
+Hydnophytum tetrapterumand H. trichomanesare INFERRED to have heterostylous flowers; there flowers are otherwise unknown.
+
+ 
+
+Leaf structure
+
+ 
+
+0: Thick
+
+1: Variable
+
+2: Thin
+
+3: Fleshy/succulent
+
+ 
+
+Domatium outgrowths
+
+0: No domatium
+
+1: None
+
+2: Variable: presence of both bald forms and hairy/spiny forms within species, often sparse when present
+
+3: Spines (stiff or flexible) 
