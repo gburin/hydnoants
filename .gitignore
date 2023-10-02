@@ -58,7 +58,7 @@ data/posterior_trees_large.zip
 *.err
 
 # RDS/RData files (just to avoid problems with large files on commits)
-*.RDS
+#*.RDS
 *.RData
 
 # Annoying FreeOffice backup files
@@ -71,4 +71,4 @@ data/posterior_trees_large.zip
 output/posterior_trees/
 
 # RDS files
-*.RDS
+#*.RDS
