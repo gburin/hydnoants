@@ -1,0 +1,1790 @@
+---
+author: Gustavo Burin$^1$,
+        Laura C. E. Campbell$^2$,
+        Susanne S. Renner$^3$,
+        E. Toby Kiers$^4$,
+        Guillaume Chomicki$^2$,
+title: Supplemental Information - Mutualisms drive plant trait macroevolution beyond interaction-related traits
+date: $^1$ Natural History Museum, London, SW7 5BD, UK \newline
+      $^2$ Department of Bioscience, Durham University, South Rd., Durham DH1 3LE, UK \newline
+      $^3$ Department of Biology, Washington University, Saint Louis, MO 63130, USA \newline
+      $^4$ Amsterdam Institute for Life and Environment, section Ecology & Evolution, Vrije Universiteit Amsterdam, 1081 HV Amsterdam, Netherlands \newline
+      \newline
+      \newline
+output:
+  pdf_document:
+    toc: true
+    latex_engine: lualatex
+    keep_tex: true
+  html_document:
+    toc: true
+    toc_float: true
+header-includes:
+  - \usepackage{pdflscape}
+  - \usepackage{afterpage}
+  - \usepackage{float}
+  - \usepackage{longtable}
+  - \usepackage{booktabs}
+  - \usepackage{seqsplit}
+  - \usepackage{caption}
+  - \captionsetup{width=8in}
+  - \newcommand{\beginsupplement}{\setcounter{table}{0}  \renewcommand{\thetable}{S\arabic{table}} \setcounter{figure}{0} \renewcommand{\thefigure}{S\arabic{figure}}}
+classoption: 
+  - table
+  - dvipsnames
+---
+
+\beginsupplement
+
+
+```{r setup, echo = FALSE, message = FALSE, warning = FALSE}
+
+library("here")
+library("ape")
+library("phytools")
+library("foreach")
+library("doMC")
+library("OUwie")
+library("caper")
+library("corHMM")
+library("data.table")
+library("expm")
+library("MetBrewer")
+library("ggh4x")
+library("knitr")
+library("RColorBrewer")
+library("kableExtra")
+library("ggplot2")
+library("tidyverse")
+library("geiger")
+knitr::opts_chunk$set(out.extra = "", echo = FALSE, message = FALSE, warning = FALSE, fig.pos = "H")
+sig.formatter <- function(x){cell_spec(x, format = "latex", bold = ifelse(x$dBIC == 0, TRUE, FALSE))}
+
+i_am("manuscript/supp_mat_2023.Rmd")
+
+fulldata <- read.csv(here::here("data/Dataset_traits_Hydnophytinae_CODED_2022.csv"))
+
+names(fulldata)[21:ncol(fulldata)] <- c("strategy", "warts", "stem.area", "leaf.area", "hole.diameter", "architecture", "dom.growth", "reward", "corolla.length", "mating.system", "petiole.length", "leaf.struct", "appendages", "holediam.disc")
+
+fulldata$species[grep("Wor2g", fulldata$species)] <- gsub("Wor2g", "Worthing", fulldata$species[grep("Wor2g", fulldata$species)])
+fulldata$species[grep("areolata", fulldata$species)] <- gsub("areolata", "aerolata", fulldata$species[grep("areolata", fulldata$species)])
+fulldata$hole.diameter[which(fulldata$hole.diameter == "NA (outgroup has no domatia)")] <- NA
+fulldata$hole.diameter <- as.numeric(fulldata$hole.diameter)
+
+mcc.tree <- ape::read.tree(here::here("data/MCCtree135taxa.tre"))
+
+tiplabel.fix <- read.csv(here::here("data/tiplabel_fix.csv"))
+
+indices.sub <- match(gsub(" ", "_", tiplabel.fix[, "phylo"]), mcc.tree$tip.label)
+
+mcc.tree$tip.label <- setNames(sapply(mcc.tree$tip.label, function(x){paste(strsplit(x, split = "_")[[1]][1:2], collapse = "_")}), NULL)
+mcc.tree$tip.label[indices.sub] <- gsub(" ", "_", tiplabel.fix[, "fix"])
+
+```
+
+# Supplementary Material and Methods
+
+## Trait Dataset
+
+We generated a trait dataset for the Hydnophytinae ant-plants. To evaluate the impact of mutualism on non-mutualistic trait evolution, we first coded the three mutualistic strategies found in the Hydnophytinae, following Chomicki & Renner (2017, 2019a), namely: ‘0’ non-mutualist (no domatium, outgroups), ‘1’ generalist and facultative mutualism, ‘2’ specialized and obligate mutualism (these species are also farmed by ants (Campbell et al., 2023)), and ‘3’ no mutualism with ants (but with a tuber still formed by the plant). These strategies are characterised by a shared suite of traits and clear patterns of symbiotic partners. In a nutshell, generalist and facultative mutualists can be occupied by any ant arboreal species and can survive without ant symbionts; specialized and obligate mutualists have typically one or two species of Dolichoderinae ants as symbionts on which they depend obligately; non-ant mutualists are species that lost the symbiosis with ants along with many associated traits. More details about these evolutionary strategies are found in Chomicki & Renner (2017, 2019b). 
+
+The trait characteristics dictated the discrete nature of mutualistic traits and the continuous nature of non-mutualistic traits. Next, we broke down mutualism into four key discrete mutualistic traits to ask how these traits influence non-mutualistic trait evolution. We focused on the following traits: (1) inner domatium wall differentiation – a trait linked to the uptake of ant-derived nutrients; (2) food reward presence or absence; (3) domatium entrance hole diameter and placement, which can filter out larger non-ant symbionts, and (4) domatium growth type, which is essential to determine the type of domatium cavities available to ant symbionts (see Fig. 1 legend for illustrations). Below we detail how these traits were coded and how the data were acquired.
+
+\textit{Inner domatium tissue differentiation} with regard to warts (structures inside the domatium that are key in the ant-derived nutrient uptake; cf. Huxley (1978), Chomicki & Renner (2019a)) were coded as ‘0’ when they were completely lacking, with the species also lacking any domatia; ‘1’ when they were not fully differentiated, with interspersed areas being ‘wart-like’ (with the warts being unevenly spaced and sized) and others ‘smooth-like’ but without clear-cut full differentiation; ‘2’ when they were fully differentiated into warty and smooth areas; ‘3’ absent (but the species still forming domatia). This was coded from the literature (Huxley and Jebb, 1991b, 1991c, 1993; Jebb, 1985, 1991a; 1991b; Chomicki & Renner, 2017, 2019a; Jebb & Huxley, 2019) and personal observations by G.C. on specimens either in the field, in cultivation or in herbaria. More details are provided in Chomicki and Renner (2019a). 
+
+\textit{Food rewards}, consisting of post-anthetic sugar rewards, were coded ‘0’ when absent in species without a domatium; ‘1’ when absent in species in which a domatium is present; and ‘2’ when present. Hydnophytinae’s only food rewards are floral nectaries that remain functional after corolla fall and provide nectar for symbiotic ants Chomicki et al. (2016). The coding of post-anthetic sugar rewards follows Chomicki et al. (2016) and is informed by taxonomic description of Hydnophytinae species (Huxley and Jebb, 1991b, 1991c, 1993; Chomicki and Renner, 2016a), descriptions and fieldwork on \textit{Squamellaria} (Chomicki et al., 2016), and discussions with Matthew Jebb (March 2015), and Camilla Huxley (Nov. 2016).
+
+\textit{Domatium entrance holes diameter and placement} were coded as ‘0’ no domatium; ‘1’ several large holes at the base of the domatium and smaller holes on the side; ‘2’ one large hole at the base connecting to the first (basal) cavity and small holes on the side; and ‘3’ large holes throughout. States were coded following Chomicki and Renner (2017). The threshold between small and large entrance holes was set as 1 cm, and the data came from the literature (Huxley and Jebb, 1991b, 1991c, 1993; Chomicki and Renner, 2016a; Jebb and Huxley, 2019; Jebb, 1985, 1991a, 1991b).
+
+\textit{Domatium growth} was coded as ‘0’ for species lacking domatia; ‘1’ for species with diffuse domatium growth; and ‘2’ for species with apical domatium growth. The data came from the literature (Huxley and Jebb, 1991b, 1991c, 1993; Huxley-Lambrick, 1981; Chomicki and Renner, 2016b; 2019b; Chomicki et al., 2017; Jebb and Huxley, 2019; Jebb, 1985, 1991a, 1991b), observations in the field and in greenhouses by G.C., and discussions with Matthew Jebb.
+
+An influence of mutualistic traits on floral traits could be mediated by the aggressivity of the symbiotic ant partner. To test for this hypothesis, we coded two traits: style polymorphism and presence of aggressive Dolichoderinae ant species (\textit{Philidris} or \textit{Anonychomyrma}). Style polymorphism was used as a proxy for mating systems (see \textit{Results} and \textit{Discussion} sections). Style polymorphism was coded ‘0’ for heterostylous; ‘1’ for non-heterostylous, typically homostylous; and ‘2’ for functionally unisexual, with male flowers having much reduced styles from literature (Huxley and Jebb, 1991b, 1991c, 1993; Jebb, 1991b; Chomicki and Renner, 2016a; Jebb and Huxley, 2019). Two species (\textit{Hydnophytum tetrapterum} and \textit{H. trichomanes}) were inferred to have heterostylous flowers based on other trait correlates; their flowers are unknown (Jebb and Huxley, 2019). Presence of aggressive Dolichoderinae ant species (\textit{Philidris} and \textit{Anonychomyrma}) was compiled from Chomicki and Renner (2017: Table S1).
+
+For the continuous, non-mutualistic traits (i.e., traits that are not involved in the mutualism with ants), we focused on four traits: (1) stem cross-section area, (2) leaf area, (3) corolla length, and (4) petiole length. 
+
+For both leaf area and stem cross-section area, we relied on herbarium specimens, available from JSTOR Global Plants (https://plants.jstor.org) and relying on the protocol and dataset of Chomicki and Renner (2019b). We added a few measurements required by the increased outgroup sampling. Briefly, we measured as many leaves as possible from mature, fully expended leaves. Importantly, we linked each measurement of leaf area to its corresponding stem, all performed in imageJ v. 2 (Rueden et al., 2017). Stem diameter measurement was taken in the middle of a stem, and the corresponding stem cross-section area was obtained as π.r2, where r is the radius of the stem, assuming that stem cross sections are circular. This approach ensured that leaves and stem area measurements remain linked throughout the analyses, which is essential given the strong leaf/stem allometry seen across seed plants (e.g., White, 1983) and could be affected by domatium traits. 
+
+For corolla length and petiole length, we relied on taxonomic references (Huxley and Jebb, 1991a, 1991b, 1991c; 1993; Chomicki \& Renner, 2016b, 2017, 2019a, b; Jebb and Huxley, 2019), with additional measurements made for a few outgroups. Because the data provided in these references cover a range, we used the maximum values in each case. This is more conservative than calculating the average from the range as the latter would imply assuming a uniform distribution, which would lead to spurious inferences. All continuous traits were natural log-normalized before the analyses. All raw data are provided in \textbf{Dataset S1}.
+
+\newpage
+
+# Supplementary Tables
+
+<!-- ## Primers used in this study -->
+
+```{r results = 'asis', echo = FALSE}
+
+if (knitr::is_latex_output()) {
+    cat("\\begin{landscape}")
+}
+
+```
+
+```{r primers-table, results = 'asis'}
+
+primers <- read.csv(here("manuscript/2nd_round/primers.csv"))
+
+column_spec(kable(primers, format = "latex", align = "c", escape = FALSE, label = "primers", booktabs = TRUE, caption = "Primers used in this study"), column = 1:4, width = c("1in", "2.8in", "2.8in", "2in")) %>%
+    kable_styling(font_size = 7, latex_options = c("striped"), stripe_color = "gray!15",)
+
+```
+
+```{r results = 'asis', echo = FALSE}
+
+if (knitr::is_latex_output()) {
+    cat("\\end{landscape}")
+}
+
+```
+
+
+<!-- ## PCA with climatic variables -->
+
+
+```{r results = 'asis', echo = FALSE}
+
+if (knitr::is_latex_output()) {
+    cat("\\begin{landscape}")
+}
+
+```
+
+\footnotesize
+
+```{r pca-summary, results = 'asis'}
+
+clim.pca <- prcomp(fulldata[, 2:20])
+## summary(clim.pca)
+
+kable(x = summary(clim.pca)$importance[, 1:10], format = "latex", caption = "Summary of PCA using all WorldClim variables.", escape = FALSE, digits = 3, align = "c", label = "pca-sum-1") %>%
+    kable_styling(full_width = FALSE)
+
+kable(x = summary(clim.pca)$importance[, c(11:19)], format = "latex", escape = FALSE, digits = 3, align = "c", label = "pca-sum-2") %>%
+    kable_styling(full_width = FALSE)
+
+```
+
+```{r results = 'asis', echo = FALSE}
+
+if (knitr::is_latex_output()) {
+    cat("\\end{landscape}")
+}
+
+```
+
+<!-- ## PGLS between non-mutualistic traits and climatic PCs -->
+
+<!-- ### Corolla Length -->
+
+```{r gls-summary-corleng}
+
+fulldata <- cbind(fulldata, clim.pca$x)
+rownames(fulldata) <- fulldata$species
+
+kable(x = suppressWarnings(summary(nlme::gls(corolla.length ~ PC1, data = fulldata[!is.na(fulldata$corolla.length),], correlation = corBrownian(phy = mcc.tree), method = "ML"))$tTable), format = "latex", caption = "Summary of PGLS between corolla length and climatic PC1.", escape = FALSE, digits = 3, align = "c", label = "pgls-corleng-pc1") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+kable(x = suppressWarnings(summary(nlme::gls(corolla.length ~ PC2, data = fulldata[!is.na(fulldata$corolla.length),], correlation = corBrownian(phy = mcc.tree), method = "ML"))$tTable), format = "latex", caption = "Summary of PGLS between corolla length and climatic PC2.", escape = FALSE, digits = 3, align = "c", label = "pgls-corleng-pc2") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+kable(x = suppressWarnings(summary(nlme::gls(corolla.length ~ PC3, data = fulldata[!is.na(fulldata$corolla.length),], correlation = corBrownian(phy = mcc.tree), method = "ML"))$tTable), format = "latex", caption = "Summary of PGLS between corolla length and climatic PC3.", escape = FALSE, digits = 3, align = "c", label = "pgls-corleng-pc3") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+```
+
+<!-- ### Leaf Area -->
+
+```{r gls-summary-leafarea}
+
+kable(x = suppressWarnings(summary(nlme::gls(leaf.area ~ PC1, data = fulldata, correlation = corBrownian(phy = mcc.tree), method = "ML"))$tTable), format = "latex", caption = "Summary of PGLS between leaf area and climatic PC1.", escape = FALSE, digits = 3, align = "c", label = "pgls-leafarea-pc1") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+kable(x = suppressWarnings(summary(nlme::gls(leaf.area ~ PC2, data = fulldata, correlation = corBrownian(phy = mcc.tree), method = "ML"))$tTable), format = "latex", caption = "Summary of PGLS between leaf area and climatic PC2.", escape = FALSE, digits = 3, align = "c", label = "pgls-leafarea-pc2") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+kable(x = suppressWarnings(summary(nlme::gls(leaf.area ~ PC3, data = fulldata, correlation = corBrownian(phy = mcc.tree), method = "ML"))$tTable), format = "latex", caption = "Summary of PGLS between leaf area and climatic PC3.", escape = FALSE, digits = 3, align = "c", label = "pgls-leafarea-pc3") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+```
+
+<!-- ### Petiole Length -->
+
+```{r gls-summary-petleng}
+
+kable(x = suppressWarnings(summary(nlme::gls(petiole.length ~ PC1, data = fulldata[!is.na(fulldata$petiole.length),], correlation = corBrownian(phy = mcc.tree), method = "ML"))$tTable), format = "latex", caption = "Summary of PGLS between petiole length and climatic PC1.", escape = FALSE, digits = 3, align = "c", label = "pgls-petleng-pc1") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+kable(x = suppressWarnings(summary(nlme::gls(petiole.length ~ PC2, data = fulldata[!is.na(fulldata$petiole.length),], correlation = corBrownian(phy = mcc.tree), method = "ML"))$tTable), format = "latex", caption = "Summary of PGLS between petiole length and climatic PC2.", escape = FALSE, digits = 3, align = "c", label = "pgls-petleng-pc2") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+kable(x = suppressWarnings(summary(nlme::gls(petiole.length ~ PC3, data = fulldata[!is.na(fulldata$petiole.length),], correlation = corBrownian(phy = mcc.tree), method = "ML"))$tTable), format = "latex", caption = "Summary of PGLS between petiole length and climatic PC3.", escape = FALSE, digits = 3, align = "c", label = "pgls-petleng-pc3") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+```
+
+<!-- ### Stem Area -->
+
+```{r gls-summary-stemarea}
+
+kable(x = suppressWarnings(summary(nlme::gls(stem.area ~ PC1, data = fulldata, correlation = corBrownian(phy = mcc.tree), method = "ML"))$tTable), format = "latex", caption = "Summary of PGLS between stem area and climatic PC1.", escape = FALSE, digits = 3, align = "c", label = "pgls-stemarea-pc1") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+kable(x = suppressWarnings(summary(nlme::gls(stem.area ~ PC2, data = fulldata, correlation = corBrownian(phy = mcc.tree), method = "ML"))$tTable), format = "latex", caption = "Summary of PGLS between stem area and climatic PC2.", escape = FALSE, digits = 3, align = "c", label = "pgls-stemarea-pc2") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+kable(x = suppressWarnings(summary(nlme::gls(stem.area ~ PC3, data = fulldata, correlation = corBrownian(phy = mcc.tree), method = "ML"))$tTable), format = "latex", caption = "Summary of PGLS between stem area and climatic PC3.", escape = FALSE, digits = 3, align = "c", label = "pgls-stemarea-pc3") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+```
+
+<!-- ## hOUwie -->
+
+```{r houwie-load}
+
+load(here("output/houwie/main_analysis/model_tables_main.RData"))
+load(here("output/houwie/main_analysis/param_values_main.RData"))
+
+load(here("output/houwie/hidden_state/model_tables_hidden.RData"))
+load(here("output/houwie/hidden_state/param_values_hidden.RData"))
+
+## Analysis with one hidden state
+
+theta.plot.hid <- rbind(plot.data.hid.domgrow.corleng[grep("theta", plot.data.hid.domgrow.corleng$variable),],
+                    plot.data.hid.domgrow.leafarea[grep("theta", plot.data.hid.domgrow.leafarea$variable),],
+                    plot.data.hid.domgrow.petleng[grep("theta", plot.data.hid.domgrow.petleng$variable),],
+                    plot.data.hid.domgrow.stemarea[grep("theta", plot.data.hid.domgrow.stemarea$variable),],
+                    plot.data.hid.holediam.corleng[grep("theta", plot.data.hid.holediam.corleng$variable),],
+                    plot.data.hid.holediam.leafarea[grep("theta", plot.data.hid.holediam.leafarea$variable),],
+                    plot.data.hid.holediam.petleng[grep("theta", plot.data.hid.holediam.petleng$variable),],
+                    plot.data.hid.holediam.stemarea[grep("theta", plot.data.hid.holediam.stemarea$variable),],
+                    plot.data.hid.reward.corleng[grep("theta", plot.data.hid.reward.corleng$variable),],
+                    plot.data.hid.reward.leafarea[grep("theta", plot.data.hid.reward.leafarea$variable),],
+                    plot.data.hid.reward.petleng[grep("theta", plot.data.hid.reward.petleng$variable),],
+                    plot.data.hid.reward.stemarea[grep("theta", plot.data.hid.reward.stemarea$variable),],
+                    plot.data.hid.warts.corleng[grep("theta", plot.data.hid.warts.corleng$variable),],
+                    plot.data.hid.warts.leafarea[grep("theta", plot.data.hid.warts.leafarea$variable),],
+                    plot.data.hid.warts.petleng[grep("theta", plot.data.hid.warts.petleng$variable),],
+                    plot.data.hid.warts.stemarea[grep("theta", plot.data.hid.warts.stemarea$variable),]
+                    )
+theta.plot.hid$discrete <- factor(theta.plot.hid$discrete, levels = c("Domatium Growth", "Reward", "Warts", "Hole Diameter"))
+
+alpha.plot.hid <- rbind(plot.data.hid.domgrow.corleng[grep("alpha", plot.data.hid.domgrow.corleng$variable),],
+                    plot.data.hid.domgrow.leafarea[grep("alpha", plot.data.hid.domgrow.leafarea$variable),],
+                    plot.data.hid.domgrow.petleng[grep("alpha", plot.data.hid.domgrow.petleng$variable),],
+                    plot.data.hid.domgrow.stemarea[grep("alpha", plot.data.hid.domgrow.stemarea$variable),],
+                    plot.data.hid.holediam.corleng[grep("alpha", plot.data.hid.holediam.corleng$variable),],
+                    plot.data.hid.holediam.leafarea[grep("alpha", plot.data.hid.holediam.leafarea$variable),],
+                    plot.data.hid.holediam.petleng[grep("alpha", plot.data.hid.holediam.petleng$variable),],
+                    plot.data.hid.holediam.stemarea[grep("alpha", plot.data.hid.holediam.stemarea$variable),],
+                    plot.data.hid.reward.corleng[grep("alpha", plot.data.hid.reward.corleng$variable),],
+                    plot.data.hid.reward.leafarea[grep("alpha", plot.data.hid.reward.leafarea$variable),],
+                    plot.data.hid.reward.petleng[grep("alpha", plot.data.hid.reward.petleng$variable),],
+                    plot.data.hid.reward.stemarea[grep("alpha", plot.data.hid.reward.stemarea$variable),],
+                    plot.data.hid.warts.corleng[grep("alpha", plot.data.hid.warts.corleng$variable),],
+                    plot.data.hid.warts.leafarea[grep("alpha", plot.data.hid.warts.leafarea$variable),],
+                    plot.data.hid.warts.petleng[grep("alpha", plot.data.hid.warts.petleng$variable),],
+                    plot.data.hid.warts.stemarea[grep("alpha", plot.data.hid.warts.stemarea$variable),]
+                    )
+alpha.plot.hid$discrete <- factor(alpha.plot.hid$discrete, levels = c("Domatium Growth", "Reward", "Warts", "Hole Diameter"))
+
+
+sigma.plot.hid <- rbind(plot.data.hid.domgrow.corleng[grep("sigma", plot.data.hid.domgrow.corleng$variable),],
+                    plot.data.hid.domgrow.leafarea[grep("sigma", plot.data.hid.domgrow.leafarea$variable),],
+                    plot.data.hid.domgrow.petleng[grep("sigma", plot.data.hid.domgrow.petleng$variable),],
+                    plot.data.hid.domgrow.stemarea[grep("sigma", plot.data.hid.domgrow.stemarea$variable),],
+                    plot.data.hid.holediam.corleng[grep("sigma", plot.data.hid.holediam.corleng$variable),],
+                    plot.data.hid.holediam.leafarea[grep("sigma", plot.data.hid.holediam.leafarea$variable),],
+                    plot.data.hid.holediam.petleng[grep("sigma", plot.data.hid.holediam.petleng$variable),],
+                    plot.data.hid.holediam.stemarea[grep("sigma", plot.data.hid.holediam.stemarea$variable),],
+                    plot.data.hid.reward.corleng[grep("sigma", plot.data.hid.reward.corleng$variable),],
+                    plot.data.hid.reward.leafarea[grep("sigma", plot.data.hid.reward.leafarea$variable),],
+                    plot.data.hid.reward.petleng[grep("sigma", plot.data.hid.reward.petleng$variable),],
+                    plot.data.hid.reward.stemarea[grep("sigma", plot.data.hid.reward.stemarea$variable),],
+                    plot.data.hid.warts.corleng[grep("sigma", plot.data.hid.warts.corleng$variable),],
+                    plot.data.hid.warts.leafarea[grep("sigma", plot.data.hid.warts.leafarea$variable),],
+                    plot.data.hid.warts.petleng[grep("sigma", plot.data.hid.warts.petleng$variable),],
+                    plot.data.hid.warts.stemarea[grep("sigma", plot.data.hid.warts.stemarea$variable),]
+                    )
+sigma.plot.hid$discrete <- factor(sigma.plot.hid$discrete, levels = c("Domatium Growth", "Reward", "Warts", "Hole Diameter"))
+
+```
+
+```{r results = 'asis', echo = FALSE}
+
+if (knitr::is_latex_output()) {
+    cat("\\begin{landscape}")
+}
+
+```
+
+```{r houwie-summary-nohidden}
+
+library("kableExtra")
+
+houwie.sum.nohid <-
+    rbind(data.frame(model = rownames(domgrow.corleng.table), domgrow.corleng.table, traits = rep("Domatium Growth + Corolla Length", nrow(domgrow.corleng.table))),
+          data.frame(model = rownames(domgrow.leafarea.table), domgrow.leafarea.table, traits = rep("Domatium Growth + Leaf Area", nrow(domgrow.leafarea.table))),
+          data.frame(model = rownames(domgrow.petleng.table), domgrow.petleng.table, traits = rep("Domatium Growth + Petiole Length", nrow(domgrow.petleng.table))),
+          data.frame(model = rownames(domgrow.stemarea.table), domgrow.stemarea.table, traits = rep("Domatium Growth + Stem Area", nrow(domgrow.stemarea.table))),
+          data.frame(model = rownames(holediam.corleng.table), holediam.corleng.table, traits = rep("Hole Diameter + Corolla Length", nrow(holediam.corleng.table))),
+          data.frame(model = rownames(holediam.leafarea.table), holediam.leafarea.table, traits = rep("Hole Diameter + Leaf Area", nrow(holediam.leafarea.table))),
+          data.frame(model = rownames(holediam.petleng.table), holediam.petleng.table, traits = rep("Hole Diameter + Petiole Length", nrow(holediam.petleng.table))),
+          data.frame(model = rownames(holediam.stemarea.table), holediam.stemarea.table, traits = rep("Hole Diameter + Stem Area", nrow(holediam.stemarea.table))),
+          data.frame(model = rownames(reward.corleng.table), reward.corleng.table, traits = rep("Reward + Corolla Length", nrow(reward.corleng.table))),
+          data.frame(model = rownames(reward.leafarea.table), reward.leafarea.table, traits = rep("Reward + Leaf Area", nrow(reward.leafarea.table))),
+          data.frame(model = rownames(reward.petleng.table), reward.petleng.table, traits = rep("Reward + Petiole Length", nrow(reward.petleng.table))),
+          data.frame(model = rownames(reward.stemarea.table), reward.stemarea.table, traits = rep("Reward + Stem Area", nrow(reward.stemarea.table))),
+          data.frame(model = rownames(warts.corleng.table), warts.corleng.table, traits = rep("Warts + Corolla Length", nrow(warts.corleng.table))),
+          data.frame(model = rownames(warts.leafarea.table), warts.leafarea.table, traits = rep("Warts + Leaf Area", nrow(warts.leafarea.table))),
+          data.frame(model = rownames(warts.petleng.table), warts.petleng.table, traits = rep("Warts + Petiole Length", nrow(warts.petleng.table))),
+          data.frame(model = rownames(warts.stemarea.table), warts.stemarea.table, traits = rep("Warts + Stem Area", nrow(warts.stemarea.table))),
+          make.row.names = FALSE
+          )
+
+row_spec(kable(houwie.sum.nohid,
+    format = "latex",
+    rownames = NULL,
+    longtable = TRUE,
+    digits = 3,
+    caption = "hOUwie output for the main analysis (excluding the models that had BIC greater than $10^4$ in module. np = Number of Parameters, lnLik = Joint Likelihood, DiscLik = Marginal likelihood for the Discrete component, ContLik = Marginal likelihood for the Continuous component, BIC = Bayesian Information Criterion, dBIC = Difference in BIC in relation to the best model, BICwt = Bayesian weights for each model, traits = Combination of Discrete and Continuous trait to which the row corresponds."), row = which(houwie.sum.nohid$dBIC == 0), bold = TRUE) %>%
+  kable_styling(latex_options = c("hold_position", "repeat_header"), full_width = FALSE)
+    
+```
+
+```{r results = 'asis', echo = FALSE}
+
+if (knitr::is_latex_output()) {
+    cat("\\end{landscape}")
+}
+
+```
+
+\newpage
+
+```{r pgls-houwie-domgrow-theta}
+
+load(here("output/houwie/main_analysis/comp_data_pgls.RData"))
+mcc.tree <- read.tree(here("data/MCCtree135taxa.tre"))
+
+## Domatium Growth
+
+kable(summary(pgls(expected_mean ~ tip_state, data = dgcl.comp.data, lambda = "ML"))$coefficients, format = "latex", caption = "Results from PGLS to test for differences in $\\theta$ values for Domatium Growth + Corolla Length", label = "pgls-dgcl-theta") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+kable(summary(pgls(expected_mean ~ tip_state, data = dgla.comp.data, lambda = "ML"))$coefficients, format = "latex", caption = "Results from PGLS to test for differences in $\\theta$ values for Domatium Growth + Leaf Area", label = "pgls-dgla-theta") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+kable(summary(pgls(expected_mean ~ tip_state, data = dgpl.comp.data, lambda = "ML"))$coefficients, format = "latex", caption = "Results from PGLS to test for differences in $\\theta$ values for Domatium Growth + Petiole Length", label = "pgls-dgpl-theta") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+kable(summary(pgls(expected_mean ~ tip_state, data = dgsa.comp.data, lambda = "ML"))$coefficients, format = "latex", caption = "Results from PGLS to test for differences in $\\theta$ values for Domatium Growth + Stem Area", label = "pgls-dgsa-theta") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+```
+
+\newpage
+
+```{r pgls-houwie-holediam-theta}
+
+## Hole Diameter
+
+kable(setNames(data.frame(phylANOVA(hdcl.comp.data$phy, x = setNames(hdcl.comp.data$data$tip_state, rownames(hdcl.comp.data$data)), y = setNames(hdcl.comp.data$data$expected_mean, rownames(hdcl.comp.data$data)))$Pt, row.names = c("Several Large", "One Large", "All Large")), c("Several Large", "One Large", "All Large")), format = "latex", caption = "Results from the post hoc tests following a phylANOVA to test for differences in $\\theta$ values for Hole Diameter + Corolla Length", label = "pgls-hdcl-theta") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+kable(setNames(data.frame(phylANOVA(hdla.comp.data$phy, x = setNames(hdla.comp.data$data$tip_state, rownames(hdla.comp.data$data)), y = setNames(hdla.comp.data$data$expected_mean, rownames(hdla.comp.data$data)))$Pt, row.names = c("Several Large", "One Large", "All Large")), c("Several Large", "One Large", "All Large")), format = "latex", caption = "Results from the post hoc tests following a phylANOVA to test for differences in $\\theta$ values for Hole Diameter + Leaf Area", label = "pgls-hdla-theta") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+kable(setNames(data.frame(phylANOVA(hdpl.comp.data$phy, x = setNames(hdpl.comp.data$data$tip_state, rownames(hdpl.comp.data$data)), y = setNames(hdpl.comp.data$data$expected_mean, rownames(hdpl.comp.data$data)))$Pt, row.names = c("Several Large", "One Large", "All Large")), c("Several Large", "One Large", "All Large")), format = "latex", caption = "Results from the post hoc tests following a phylANOVA to test for differences in $\\theta$ values for Hole Diameter + Petiole Length", label = "pgls-hdpl-theta") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+kable(setNames(data.frame(phylANOVA(hdsa.comp.data$phy, x = setNames(hdsa.comp.data$data$tip_state, rownames(hdsa.comp.data$data)), y = setNames(hdsa.comp.data$data$expected_mean, rownames(hdsa.comp.data$data)))$Pt, row.names = c("Several Large", "One Large", "All Large")), c("Several Large", "One Large", "All Large")), format = "latex", caption = "Results from the post hoc tests following a phylANOVA to test for differences in $\\theta$ values for Hole Diameter + Stem Area", label = "pgls-hdsa-theta") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+```
+
+\newpage
+
+```{r pgls-houwie-reward-theta}
+
+## Reward
+
+kable(summary(pgls(expected_mean ~ tip_state, data = rewcl.comp.data, lambda = "ML"))$coefficients, format = "latex", caption = "Results from PGLS to test for differences in $\\theta$ values for Reward + Corolla Length", label = "pgls-rewcl-theta") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+kable(summary(pgls(expected_mean ~ tip_state, data = rewla.comp.data, lambda = "ML"))$coefficients, format = "latex", caption = "Results from PGLS to test for differences in $\\theta$ values for Reward + Leaf Area", label = "pgls-rewla-theta") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+kable(summary(pgls(expected_mean ~ tip_state, data = rewpl.comp.data, lambda = "ML"))$coefficients, format = "latex", caption = "Results from PGLS to test for differences in $\\theta$ values for Reward + Petiole Length", label = "pgls-rewpl-theta") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+kable(summary(pgls(expected_mean ~ tip_state, data = rewsa.comp.data, lambda = "ML"))$coefficients, format = "latex", caption = "Results from PGLS to test for differences in $\\theta$ values for Reward + Stem Area", label = "pgls-rewsa-theta") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+```
+
+\newpage
+
+```{r pgls-houwie-warts-theta}
+
+## Warts
+
+kable(setNames(data.frame(phylANOVA(warcl.comp.data$phy, x = setNames(warcl.comp.data$data$tip_state, rownames(warcl.comp.data$data)), y = setNames(warcl.comp.data$data$expected_mean, rownames(warcl.comp.data$data)))$Pt, row.names = c("Variable", "Differentiated", "Lost")), c("Variable", "Differentiated", "Lost")), format = "latex", caption = "Results from the post hoc tests following a phylANOVA to test for differences in $\\theta$ values for Warts + Corolla Length", label = "pgls-warcl-theta") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+kable(setNames(data.frame(phylANOVA(warla.comp.data$phy, x = setNames(warla.comp.data$data$tip_state, rownames(warla.comp.data$data)), y = setNames(warla.comp.data$data$expected_mean, rownames(warla.comp.data$data)))$Pt, row.names = c("Variable", "Differentiated", "Lost")), c("Variable", "Differentiated", "Lost")), format = "latex", caption = "Results from the post hoc tests following a phylANOVA to test for differences in $\\theta$ values for Warts + Leaf Area", label = "pgls-warla-theta") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+kable(setNames(data.frame(phylANOVA(warpl.comp.data$phy, x = setNames(warpl.comp.data$data$tip_state, rownames(warpl.comp.data$data)), y = setNames(warpl.comp.data$data$expected_mean, rownames(warpl.comp.data$data)))$Pt, row.names = c("Variable", "Differentiated", "Lost")), c("Variable", "Differentiated", "Lost")), format = "latex", caption = "Results from the post hoc tests following a phylANOVA to test for differences in $\\theta$ values for Warts + Petiole Length", label = "pgls-warpl-theta") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+kable(setNames(data.frame(phylANOVA(warsa.comp.data$phy, x = setNames(warsa.comp.data$data$tip_state, rownames(warsa.comp.data$data)), y = setNames(warsa.comp.data$data$expected_mean, rownames(warsa.comp.data$data)))$Pt, row.names = c("Variable", "Differentiated", "Lost")), c("Variable", "Differentiated", "Lost")), format = "latex", caption = "Results from the post hoc tests following a phylANOVA to test for differences in $\\theta$ values for Warts + Stem Area", label = "pgls-warsa-theta") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+```
+
+\newpage
+
+```{r pgls-houwie-domgrow-sigma}
+
+#### Expected Var
+
+## Domatium Growth
+
+kable(summary(pgls(expected_var ~ tip_state, data = dgcl.comp.data, lambda = "ML"))$coefficients, format = "latex", caption = "Results from PGLS to test for differences in $\\sigma^2$ values for Domatium Growth + Corolla Length", label = "pgls-dgcl-sigma") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+kable(summary(pgls(expected_var ~ tip_state, data = dgla.comp.data, lambda = "ML"))$coefficients, format = "latex", caption = "Results from PGLS to test for differences in $\\sigma^2$ values for Domatium Growth + Leaf Area", label = "pgls-dgla-sigma") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+kable(summary(pgls(expected_var ~ tip_state, data = dgpl.comp.data, lambda = "ML"))$coefficients, format = "latex", caption = "Results from PGLS to test for differences in $\\sigma^2$ values for Domatium Growth + Petiole Length", label = "pgls-dgpl-sigma") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+kable(summary(pgls(expected_var ~ tip_state, data = dgsa.comp.data, lambda = "ML"))$coefficients, format = "latex", caption = "Results from PGLS to test for differences in $\\sigma^2$ values for Domatium Growth + Stem Area", label = "pgls-dgsa-sigma") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+```
+
+\newpage
+
+```{r pgls-houwie-holediam-sigma}
+
+## Hole Diameter
+
+kable(setNames(data.frame(phylANOVA(hdcl.comp.data$phy, x = setNames(hdcl.comp.data$data$tip_state, rownames(hdcl.comp.data$data)), y = setNames(hdcl.comp.data$data$expected_var, rownames(hdcl.comp.data$data)))$Pt, row.names = c("Several Large", "One Large", "All Large")), c("Several Large", "One Large", "All Large")), format = "latex", caption = "Results from the post hoc tests following a phylANOVA to test for differences in $\\sigma^2$ values for Hole Diameter + Corolla Length", label = "pgls-hdcl-sigma") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+kable(setNames(data.frame(phylANOVA(hdla.comp.data$phy, x = setNames(hdla.comp.data$data$tip_state, rownames(hdla.comp.data$data)), y = setNames(hdla.comp.data$data$expected_var, rownames(hdla.comp.data$data)))$Pt, row.names = c("Several Large", "One Large", "All Large")), c("Several Large", "One Large", "All Large")), format = "latex", caption = "Results from the post hoc tests following a phylANOVA to test for differences in $\\sigma^2$ values for Hole Diameter + Leaf Area", label = "pgls-hdla-sigma") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+kable(setNames(data.frame(phylANOVA(hdpl.comp.data$phy, x = setNames(hdpl.comp.data$data$tip_state, rownames(hdpl.comp.data$data)), y = setNames(hdpl.comp.data$data$expected_var, rownames(hdpl.comp.data$data)))$Pt, row.names = c("Several Large", "One Large", "All Large")), c("Several Large", "One Large", "All Large")), format = "latex", caption = "Results from the post hoc tests following a phylANOVA to test for differences in $\\sigma^2$ values for Hole Diameter + Petiole Length", label = "pgls-hdpl-sigma") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+kable(setNames(data.frame(phylANOVA(hdsa.comp.data$phy, x = setNames(hdsa.comp.data$data$tip_state, rownames(hdsa.comp.data$data)), y = setNames(hdsa.comp.data$data$expected_var, rownames(hdsa.comp.data$data)))$Pt, row.names = c("Several Large", "One Large", "All Large")), c("Several Large", "One Large", "All Large")), format = "latex", caption = "Results from the post hoc tests following a phylANOVA to test for differences in $\\sigma^2$ values for Hole Diameter + Stem Area", label = "pgls-hdsa-sigma") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+```
+
+\newpage
+
+```{r pgls-houwie-reward-sigma}
+
+## Reward
+
+kable(summary(pgls(expected_var ~ tip_state, data = rewcl.comp.data, lambda = "ML"))$coefficients, format = "latex", caption = "Results from PGLS to test for differences in $\\sigma^2$ values for Reward + Corolla Length", label = "pgls-rewcl-sigma") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+kable(summary(pgls(expected_var ~ tip_state, data = rewla.comp.data, lambda = "ML"))$coefficients, format = "latex", caption = "Results from PGLS to test for differences in $\\sigma^2$ values for Reward + Leaf Area", label = "pgls-rewla-sigma") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+kable(summary(pgls(expected_var ~ tip_state, data = rewpl.comp.data, lambda = "ML"))$coefficients, format = "latex", caption = "Results from PGLS to test for differences in $\\sigma^2$ values for Reward + Petiole Length", label = "pgls-rewpl-sigma") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+kable(summary(pgls(expected_var ~ tip_state, data = rewsa.comp.data, lambda = "ML"))$coefficients, format = "latex", caption = "Results from PGLS to test for differences in $\\sigma^2$ values for Reward + Stem Area", label = "pgls-rewsa-sigma") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+```
+
+\newpage
+
+```{r pgls-houwie-warts-sigma}
+
+## Warts
+
+kable(setNames(data.frame(phylANOVA(warcl.comp.data$phy, x = setNames(warcl.comp.data$data$tip_state, rownames(warcl.comp.data$data)), y = setNames(warcl.comp.data$data$expected_var, rownames(warcl.comp.data$data)))$Pt, row.names = c("Variable", "Differentiated", "Lost")), c("Variable", "Differentiated", "Lost")), format = "latex", caption = "Results from the post hoc tests following a phylANOVA to test for differences in $\\sigma^2$ values for Warts + Corolla Length", label = "pgls-warcl-sigma") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+kable(setNames(data.frame(phylANOVA(warla.comp.data$phy, x = setNames(warla.comp.data$data$tip_state, rownames(warla.comp.data$data)), y = setNames(warla.comp.data$data$expected_var, rownames(warla.comp.data$data)))$Pt, row.names = c("Variable", "Differentiated", "Lost")), c("Variable", "Differentiated", "Lost")), format = "latex", caption = "Results from the post hoc tests following a phylANOVA to test for differences in $\\sigma^2$ values for Warts + Leaf Area", label = "pgls-warla-sigma") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+kable(setNames(data.frame(phylANOVA(warpl.comp.data$phy, x = setNames(warpl.comp.data$data$tip_state, rownames(warpl.comp.data$data)), y = setNames(warpl.comp.data$data$expected_var, rownames(warpl.comp.data$data)))$Pt, row.names = c("Variable", "Differentiated", "Lost")), c("Variable", "Differentiated", "Lost")), format = "latex", caption = "Results from the post hoc tests following a phylANOVA to test for differences in $\\sigma^2$ values for Warts + Petiole Length", label = "pgls-warpl-sigma") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+kable(setNames(data.frame(phylANOVA(warsa.comp.data$phy, x = setNames(warsa.comp.data$data$tip_state, rownames(warsa.comp.data$data)), y = setNames(warsa.comp.data$data$expected_var, rownames(warsa.comp.data$data)))$Pt, row.names = c("Variable", "Differentiated", "Lost")), c("Variable", "Differentiated", "Lost")), format = "latex", caption = "Results from the post hoc tests following a phylANOVA to test for differences in $\\sigma^2$ values for Warts + Stem Area", label = "pgls-warsa-sigma") %>%
+    kable_styling(full_width = FALSE, latex_options = "HOLD_position")
+
+```
+
+
+# Supplementary Figures
+
+```{r, echo = FALSE, fig.cap = "The evolution of specialized mutualism with Dolichoderinae (\\textit{Philidris} and \\textit{Anonychomyrma}) ant species is associated with shifts in mating system. Both trees are stochastic mapping analyses performed in the R package phytools under the best-fitting ARD model. The taxa colour-coding is the same as in Fig. 1, with in red species forming facultative and generalist symbioses with ants, in green species forming obligate and specialized symbioses, and in blue species that have lost the symbiosis with ants. Non-homostylous includes mostly species heterostylous species, as well as a handful of functionally unisexual species. Homostyly is a proxy for selfing, and observations in greenhouse (GC) for a few species is consistent with this. On the right, we coded domatium inhabitants as Dolichoderinae ants, for species whose principal ant symbionts are Dolichoderinae genera \\textit{Philidris} or \\textit{Anonychomyrma}, and 'other' for species which either associate with many distinct ant species or none. This does not precludes that some Dolichoderine specialists are sometimes inhabited by other ant species, and vice versa that Dolichoderinae ants sometimes inhabit plants from the 'other' category. \\textbf{Test for correlated evolution}: to test whether symbiont type evolved jointly with mating type, we used Pagel's (1994) test for correlated evolution, as implemented in BayesTraits V3. We ran independent versus dependent models of evolution, and used Bayes Factor (BF) to test for the support of the correlated model. We obtained Log BF = 13.48 (Log Marginal likelihood of dependent model vs. independent models were -101.40 and -108.14, respectively). This suggests that the evolution of symbioses with aggresive Dolichoderinae ants is associated with shifts to selfing, consistent with the mitigation of ant-pollinator conflicts.", out.width = "6in"}
+
+knitr::include_graphics(here("manuscript/2nd_round/bayestraits.png"))
+
+#img <- readPNG(here("manuscript/2nd_round/bayestraits.png"))
+#grid.raster(img, height = 20, default.units = "in")
+
+```
+
+\newpage
+
+<!-- ## hOUwie - Analysis using trees from the posterior distribution -->
+
+<!-- ### Domatium Growth -->
+
+```{r domgrow-corleng-posterior, echo = FALSE, fig.cap = "hOUwie results for Domatium Growth + Corolla Length using the 20 trees sampled from the posterior distribution. Hollow circles correspond to individual simulations, and filled circles correspond to the average value.", fig.height = 12, fig.width = 7}
+
+knitr::include_graphics(here("output/houwie/posterior_trees/figs/domgrow_corleng_full.pdf"))
+
+```
+
+```{r domgrow-leafarea-posterior, echo = FALSE, fig.cap = "hOUwie results for Domatium Growth + Leaf Area using the 20 trees sampled from the posterior distribution. Hollow circles correspond to individual simulations, and filled circles correspond to the average value.", fig.height = 12, fig.width = 7}
+
+knitr::include_graphics(here("output/houwie/posterior_trees/figs/domgrow_leafarea_full.pdf"))
+
+```
+
+```{r domgrow-petleng-posterior, echo = FALSE, fig.cap = "hOUwie results for Domatium Growth + Petiole Length using the 20 trees sampled from the posterior distribution. Hollow circles correspond to individual simulations, and filled circles correspond to the average value.", fig.height = 12, fig.width = 7}
+
+knitr::include_graphics(here("output/houwie/posterior_trees/figs/domgrow_petleng_full.pdf"))
+
+```
+
+```{r domgrow-stemarea-posterior, echo = FALSE, fig.cap = "hOUwie results for Domatium Growth + Stem Area using the 20 trees sampled from the posterior distribution. Hollow circles correspond to individual simulations, and filled circles correspond to the average value.", fig.height = 12, fig.width = 7}
+
+knitr::include_graphics(here("output/houwie/posterior_trees/figs/domgrow_stemarea_full.pdf"))
+
+```
+
+\newpage
+
+<!-- ### Hole Diameter -->
+
+```{r holediam-corleng-posterior, echo = FALSE, fig.cap = "hOUwie results for Hole Diameter + Corolla Length using the 20 trees sampled from the posterior distribution. Hollow circles correspond to individual simulations, and filled circles correspond to the average value.", fig.height = 12, fig.width = 7}
+
+knitr::include_graphics(here("output/houwie/posterior_trees/figs/holediam_corleng_full.pdf"))
+
+```
+
+```{r holediam-leafarea-posterior, echo = FALSE, fig.cap = "hOUwie results for Hole Diameter + Leaf Area using the 20 trees sampled from the posterior distribution. Hollow circles correspond to individual simulations, and filled circles correspond to the average value.", fig.height = 12, fig.width = 7}
+
+knitr::include_graphics(here("output/houwie/posterior_trees/figs/holediam_leafarea_full.pdf"))
+
+```
+
+```{r holediam-petleng-posterior, echo = FALSE, fig.cap = "hOUwie results for Hole Diameter + Petiole Length using the 20 trees sampled from the posterior distribution. Hollow circles correspond to individual simulations, and filled circles correspond to the average value.", fig.height = 12, fig.width = 7}
+
+knitr::include_graphics(here("output/houwie/posterior_trees/figs/holediam_petleng_full.pdf"))
+
+```
+
+```{r holediam-stemarea-posterior, echo = FALSE, fig.cap = "hOUwie results for Hole Diameter + Stem Area using the 20 trees sampled from the posterior distribution. Hollow circles correspond to individual simulations, and filled circles correspond to the average value.", fig.height = 12, fig.width = 7}
+
+knitr::include_graphics(here("output/houwie/posterior_trees/figs/holediam_stemarea_full.pdf"))
+
+```
+
+\newpage
+
+<!-- ### Reward -->
+
+```{r reward-corleng-posterior, echo = FALSE, fig.cap = "hOUwie results for Reward + Corolla Length using the 20 trees sampled from the posterior distribution. Hollow circles correspond to individual simulations, and filled circles correspond to the average value.", fig.height = 12, fig.width = 7}
+
+knitr::include_graphics(here("output/houwie/posterior_trees/figs/reward_corleng_full.pdf"))
+
+```
+
+```{r reward-leafarea-posterior, echo = FALSE, fig.cap = "hOUwie results for Reward + Leaf Area using the 20 trees sampled from the posterior distribution. Hollow circles correspond to individual simulations, and filled circles correspond to the average value.", fig.height = 12, fig.width = 7}
+
+knitr::include_graphics(here("output/houwie/posterior_trees/figs/reward_leafarea_full.pdf"))
+
+```
+
+```{r reward-petleng-posterior, echo = FALSE, fig.cap = "hOUwie results for Reward + Petiole Length using the 20 trees sampled from the posterior distribution. Hollow circles correspond to individual simulations, and filled circles correspond to the average value.", fig.height = 12, fig.width = 7}
+
+knitr::include_graphics(here("output/houwie/posterior_trees/figs/reward_petleng_full.pdf"))
+
+```
+
+```{r reward-stemarea-posterior, echo = FALSE, fig.cap = "hOUwie results for Reward + Stem Area using the 20 trees sampled from the posterior distribution. Hollow circles correspond to individual simulations, and filled circles correspond to the average value.", fig.height = 12, fig.width = 7}
+
+knitr::include_graphics(here("output/houwie/posterior_trees/figs/reward_stemarea_full.pdf"))
+
+```
+
+\newpage
+
+<!-- ### Warts -->
+
+```{r warts-corleng-posterior, echo = FALSE, fig.cap = "hOUwie results for Warts + Corolla Length using the 20 trees sampled from the posterior distribution. Hollow circles correspond to individual simulations, and filled circles correspond to the average value.", fig.height = 12, fig.width = 7}
+
+knitr::include_graphics(here("output/houwie/posterior_trees/figs/warts_corleng_full.pdf"))
+
+```
+
+```{r warts-leafarea-posterior, echo = FALSE, fig.cap = "hOUwie results for Warts + Leaf Area using the 20 trees sampled from the posterior distribution. Hollow circles correspond to individual simulations, and filled circles correspond to the average value.", fig.height = 12, fig.width = 7}
+
+knitr::include_graphics(here("output/houwie/posterior_trees/figs/warts_leafarea_full.pdf"))
+
+```
+
+```{r warts-petleng-posterior, echo = FALSE, fig.cap = "hOUwie results for Warts + Petiole Length using the 20 trees sampled from the posterior distribution. Hollow circles correspond to individual simulations, and filled circles correspond to the average value.", fig.height = 12, fig.width = 7}
+
+knitr::include_graphics(here("output/houwie/posterior_trees/figs/warts_petleng_full.pdf"))
+
+```
+
+```{r warts-stemarea-posterior, echo = FALSE, fig.cap = "hOUwie results for Warts + Stem Area using the 20 trees sampled from the posterior distribution. Hollow circles correspond to individual simulations, and filled circles correspond to the average value.", fig.height = 12, fig.width = 7}
+
+knitr::include_graphics(here("output/houwie/posterior_trees/figs/warts_stemarea_full.pdf"))
+
+```
+
+<!-- ## Ancestral state estimation (Stochastic Mapping) -->
+
+<!-- ### Domatium Growth -->
+
+```{r simmap-domgrow, fig.height = 7.5, fig.width = 6, fig.cap = "Ancestral state estimation for Domatium Growth. Pie charts at each node correspond to the summarized probability of each state for a given node."}
+
+sim.domgrow <- readRDS(here::here("output/simmaps_dom.growth.RDS"))
+
+for(i in 1:length(sim.domgrow)){
+    tiplabel.fix <- read.csv(here::here("data/tiplabel_fix.csv"))
+    indices.sub <- match(gsub(" ", "_", tiplabel.fix[, "phylo"]), sim.domgrow[[i]]$tip.label)
+    sim.domgrow[[i]]$tip.label <- setNames(sapply(sim.domgrow[[i]]$tip.label, function(x){paste(strsplit(x, split = "_")[[1]][1:2], collapse = "_")}), NULL)
+    sim.domgrow[[i]]$tip.label[indices.sub] <- gsub(" ", "_", tiplabel.fix[, "fix"])
+}
+
+summary.domgrow <- describe.simmap(sim.domgrow)
+
+
+col.domgrow <- setNames(colorRampPalette(met.brewer("Greek", 100))(2), c("1", "2"))
+
+plot(summary.domgrow, offset = 0.5, fsize = 0.5, colors = col.domgrow)
+legend(legend = c("Diffuse", "Apical"), col = col.domgrow, pch = 20, x = 0, y = 20, pt.cex = 2)
+
+```
+
+<!-- ### Reward type -->
+
+```{r simmap-reward, fig.height = 7.5, fig.width = 6, fig.cap = "Ancestral state estimation for Reward type. Pie charts at each node correspond to the summarized probability of each state for a given node."}
+
+sim.reward <- readRDS(here::here("output/simmaps_reward.RDS"))
+
+for(i in 1:length(sim.reward)){
+    tiplabel.fix <- read.csv(here::here("data/tiplabel_fix.csv"))
+    indices.sub <- match(gsub(" ", "_", tiplabel.fix[, "phylo"]), sim.reward[[i]]$tip.label)
+    sim.reward[[i]]$tip.label <- setNames(sapply(sim.reward[[i]]$tip.label, function(x){paste(strsplit(x, split = "_")[[1]][1:2], collapse = "_")}), NULL)
+    sim.reward[[i]]$tip.label[indices.sub] <- gsub(" ", "_", tiplabel.fix[, "fix"])
+}
+
+summary.reward <- describe.simmap(sim.reward)
+
+col.reward <- setNames(colorRampPalette(met.brewer("Hiroshige", 100))(2), c("0", "1"))
+
+plot(summary.reward, offset = 0.5, fsize = 0.5, colors = col.reward)
+legend(legend = c("Absent", "Present"), col = col.reward, pch = 20, x = 0, y = 20, pt.cex = 2)
+
+```
+
+<!-- ### Warts -->
+
+```{r simmap-warts, fig.height = 7.5, fig.width = 6, fig.cap = "Ancestral state estimation for Warts. Pie charts at each node correspond to the summarized probability of each state for a given node."}
+
+sim.warts <- readRDS(here::here("output/simmaps_warts.RDS"))
+
+for(i in 1:length(sim.warts)){
+    tiplabel.fix <- read.csv(here::here("data/tiplabel_fix.csv"))
+    indices.sub <- match(gsub(" ", "_", tiplabel.fix[, "phylo"]), sim.warts[[i]]$tip.label)
+    sim.warts[[i]]$tip.label <- setNames(sapply(sim.warts[[i]]$tip.label, function(x){paste(strsplit(x, split = "_")[[1]][1:2], collapse = "_")}), NULL)
+    sim.warts[[i]]$tip.label[indices.sub] <- gsub(" ", "_", tiplabel.fix[, "fix"])
+}
+
+summary.warts <- describe.simmap(sim.warts)
+
+col.warts <- setNames(colorRampPalette(met.brewer("Isfahan2", 100))(4), c("1", "0", "2", "3"))
+
+plot(summary.warts, offset = 0.5, fsize = 0.5, colors = col.warts)
+legend(legend = c("Variable", "Differentiated", "Lost"), col = col.warts[c(1, 3, 4)], pch = 20, x = 0, y = 20, pt.cex = 2)
+
+```
+
+<!-- ### Hole Diameter -->
+
+```{r simmap-holediam, fig.height = 7.5, fig.width = 6, fig.cap = "Ancestral state estimation for Hole Diameter. Pie charts at each node correspond to the summarized probability of each state for a given node."}
+
+sim.holediam <- readRDS(here::here("output/simmaps_holediam.disc.RDS"))
+
+for(i in 1:length(sim.holediam)){
+    tiplabel.fix <- read.csv(here::here("data/tiplabel_fix.csv"))
+    indices.sub <- match(gsub(" ", "_", tiplabel.fix[, "phylo"]), sim.holediam[[i]]$tip.label)
+    sim.holediam[[i]]$tip.label <- setNames(sapply(sim.holediam[[i]]$tip.label, function(x){paste(strsplit(x, split = "_")[[1]][1:2], collapse = "_")}), NULL)
+    sim.holediam[[i]]$tip.label[indices.sub] <- gsub(" ", "_", tiplabel.fix[, "fix"])
+}
+
+summary.holediam <- describe.simmap(sim.holediam)
+
+col.holediam <- setNames(colorRampPalette(met.brewer("Veronese", 100))(4), c("1", "0", "2", "3"))
+
+plot(summary.holediam, offset = 0.5, fsize = 0.5, colors = col.holediam)
+legend(legend = c("Several Large at the Base", "One Large at the Base", "All Large"), col = col.holediam[c(1, 3, 4)], pch = 20, x = 0, y = 6, pt.cex = 1.5, cex = 0.75)
+
+```
+
+
+```{r results = 'asis', echo = FALSE}
+
+if (knitr::is_latex_output()) {
+    cat("\\begin{landscape}")
+}
+
+```
+
+```{r, echo = FALSE, fig.cap="Toy example showing how to interpret the chord diagrams. In all panels, the bands in the center correspond to the proportion of simulations in which the state represented by the colour of the band has higher parameter values than the other state. (A) In the leftmost panel, all simulations show that State A has higher parameter values than State B, and the opposite in the rightmost panel. In the centre panel, most simulations have parameters that are higher for State A, but a few are higher for State B, meaning that there are two bands that are proportional to the number of simulations for which each state has higher parameter values. (B) The same representation but for a 3-state trait: in this example, all simulations have State A with the highest values, and therefore no green or blue bands are connected to the pink arch; accordingly, most simulations show that State B has higher parameter values than State C, and therefore the green band is much wider than the blue one.", fig.width = 12, fig.height = 6}
+
+library("png")
+library("grid")
+img <- readPNG(here("manuscript/figs/cartoon_example_ouwie_final.png"))
+grid.raster(img, width = 12, default.units = "in")
+
+```
+
+```{r results = 'asis', echo = FALSE}
+
+if (knitr::is_latex_output()) {
+    cat("\\end{landscape}")
+}
+
+```
+
+<!-- \newpage -->
+
+```{r results = 'asis', echo = FALSE}
+
+if (knitr::is_latex_output()) {
+    cat("\\begin{landscape}")
+}
+
+```
+
+```{r, echo = FALSE, fig.cap = "The association of discrete mutualistic traits (Y axes) to the long-term mean ($\\theta$) of continuous non-mutualistic traits. Whisker plots show distribution of $\\theta$ values for the OU-based models for each of the four continuous traits in association with different states the four discrete mutualistic traits. The circular diagrams represent the differences between parameter values of each pair of states within the corresponding simmap. The colour of each band is related to the state represented in the outer rings, and the thickness of the bands is proportional to the number of simmaps for which the corresponding state’s parameter is larger than the other state(s).", fig.width = 12, fig.height = 7}
+
+library("png")
+library("grid")
+img <- readPNG(here("manuscript/figs/theta_plots_ouwie.png"))
+grid.raster(img, width = 12, default.units = "in")
+
+```
+
+```{r results = 'asis', echo = FALSE}
+
+if (knitr::is_latex_output()) {
+    cat("\\end{landscape}")
+}
+
+```
+
+<!-- \newpage -->
+
+```{r results = 'asis', echo = FALSE}
+
+if (knitr::is_latex_output()) {
+    cat("\\begin{landscape}")
+}
+
+```
+
+```{r, echo = FALSE, fig.cap = "The association of discrete mutualistic traits (Y axes) to the strength of selection ($\\alpha$) of continuous non-mutualistic traits. Whisker plots show distribution of $\\alpha$ values for the OU-based models for each of the four continuous traits in association with different states the four discrete mutualistic traits. The circular diagrams represent the differences between parameter values of each pair of states within the corresponding simmap. The colour of each band is related to the state represented in the outer rings, and the thickness of the bands is proportional to the number of simmaps for which the corresponding state’s parameter is larger than the other state(s).", fig.width = 12, fig.height = 7}
+
+library("png")
+library("grid")
+img <- readPNG(here("manuscript/figs/alpha_plots_ouwie.png"))
+grid.raster(img, width = 12, default.units = "in")
+
+```
+
+```{r results = 'asis', echo = FALSE}
+
+if (knitr::is_latex_output()) {
+    cat("\\end{landscape}")
+}
+
+```
+
+<!-- \newpage -->
+
+```{r results = 'asis', echo = FALSE}
+
+if (knitr::is_latex_output()) {
+    cat("\\begin{landscape}")
+}
+
+```
+
+```{r, echo = FALSE, fig.cap = "The association of discrete mutualistic traits (Y axes) to the evolutionary rate ($\\sigma^2$) of continuous non-mutualistic traits. Whisker plots show distribution of $\\sigma^2$ values for the OU-based models for each of the four continuous traits in association with different states the four discrete mutualistic traits. The circular diagrams represent the differences between parameter values of each pair of states within the corresponding simmap. The colour of each band is related to the state represented in the outer rings, and the thickness of the bands is proportional to the number of simmaps for which the corresponding state’s parameter is larger than the other state(s).", fig.width = 12, fig.height = 7}
+
+library("png")
+library("grid")
+img <- readPNG(here("manuscript/figs/alpha_plots_ouwie.png"))
+grid.raster(img, width = 12, default.units = "in")
+
+```
+
+```{r results = 'asis', echo = FALSE}
+
+if (knitr::is_latex_output()) {
+    cat("\\end{landscape}")
+}
+
+```
+
+
+# Supplementary References
+
+\begin{itemize}
+
+\item Baldwin BG, Markos S. 1998. Phylogenetic utility of the external transcribed spacer (ETS) of 18S–26S rDNA: congruence of ETS and ITS trees of Calycadenia (Compositae). Molecular Phylogenetics and Evolution 10: 449–463.
+
+\item Campbell L.C.E., Kiers E.T., \& Chomicki G. (2023) The evolution of plant cultivation by ants. Trends in Plant Sciences, 28, 271-282
+
+\item Chomicki, G. \& Renner, S.S. (2016a). Evolutionary relationships and biogeography of the ant-epiphytic genus Squamellaria (Rubiaceae: Psychotrieae) and their taxonomic implications. PLoS One, 11, p.e0151317.
+
+\item Chomicki, G. \& Renner, S.S. (2016b) Obligate plant farming by a specialized ant. Nature Plants, 2, 1-4.
+
+\item Chomicki, G. \& Renner, S.S. (2017) Partner abundance controls mutualism stability and the pace of morphological change over geologic time. Proceedings of the National Academy of Sciences of the U.S.A, 114(15), 3951-3956.
+
+\item Chomicki, G. \& Renner, S.S. (2019a) Farming by ants remodels nutrient uptake in epiphytes. New Phytologist, 223(4), 2011-2023. 
+
+\item Chomicki, G. \& Renner, S.S. (2019b) Climate and symbioses with ants modulate leaf/stem scaling in epiphytes. Scientific Reports, 9(1), 1-12.
+
+\item Chomicki, G., Janda, M. \& Renner, S.S. (2017) The assembly of ant-farmed gardens: mutualism specialization following host broadening. Proceedings of the Royal Society B: Biological Sciences, 284(1850), 20161759.
+
+\item Chomicki, G., Staedler, Y.M., Schönenberger, J. \& Renner, S.S. (2016) Partner choice through concealed floral sugar rewards evolved with the specialization of ant–plant mutualisms. New Phytologist, 211(4), 1358-1370.
+
+\item Huxley-Lambrick, C.R. (1981) Evolution and taxonomy of myrmecophytes with particular reference to Myrmecodia and Hydnophytum (Doctoral dissertation, Oxford University, UK).
+
+\item Huxley, C.R. \& Jebb, M.H.P. (1991a). The tuberous epiphytes of the Rubiaceae 1: a new subtribe—the Hydnophytinae. Blumea, 36(1), 1-20.
+
+\item Huxley, C.R. \& Jebb, M.H.P. (1991b) The tuberous epiphytes of the Rubiaceae 2: the new genus Anthorrhiza. Blumea, 36(1), 21-41.
+
+\item Huxley, C.R. \& Jebb, M.H.P. (1991c) The tuberous epiphytes of the Rubiaceae 3: A revision of Myrmephytum to include Myrmedoma. Blumea, 36(1), 43-52.
+
+\item Huxley, C.R. \& Jebb, M.H.P. (1993) The tuberous epiphytes of the Rubiaceae 5: a revision of Myrmecodia. Blumea, 37(2), 271-334.
+
+\item Huxley, C.R. (1978) The ant‐plants Myrmecodia and Hydnophytum (Rubiaceae), and the relationships between their morphology, ant occupants, physiology and ecology. New Phytologist, 80(1), 231-268.
+
+\item Jebb, M.H.P. \& Huxley, C.R. (2019) The tuberous epiphytes of the Rubiaceae 7: a revision of the genus Hydnophytum. Blumea, 64(1), 23-91.
+
+\item Jebb, M.H.P. (1985) Taxonomy and tuber morphology of the rubiaceous Ant-Plants (Doctoral dissertation, University of Oxford).
+
+\item Jebb, M.H.P. (1991a) Cavity structure and function in the tuberous Rubiaceae. In Ed. Huxley, C.R. and Cutler, D.F. eds. Ant-plant interactions. Oxford: Oxford University Press.,  374-390.
+
+\item Jebb, M.H.P. (1991b) The tuberous epiphytes of the Rubiaceae 4: A revision of Squamellaria. Blumea: Biodiversity, Evolution and Biogeography of Plants, 36(1), 53-61.
+
+\item Nepokroeff M, Systma KJ, Wagner WL, Zimmer EA. 2003. Reconstructing ancestral patterns of colonization and dispersal in the Hawaiian understory tree genus Psychotria (Rubiaceae): a comparison of parsimony and likelihood approaches. Systematic Biology 52: 820–838.
+
+\item Olmstead RG, Sweere JA. 1994. Combining data in phylogenetic systematics: an empirical approach using three molecular data sets in the Solanaceae. Systematic Biology 43: 467–481.
+
+\item Rueden, C.T., Schindelin, J., Hiner, M.C., DeZonia, B.E., Walter, A.E., Arena, E.T. \& Eliceiri, K.W., 2017. ImageJ2: ImageJ for the next generation of scientific image data. BMC bioinformatics, 18, 1-26.
+
+\item Sang, T., Crawford, D.J. and Stuessy, T.F., 1997. Chloroplast DNA phylogeny, reticulate evolution, and biogeography of Paeonia (Paeoniaceae). American journal of Botany 84: 1120-1136.
+
+\item Taberlet P, Gielly L, Pautou G, Bouvet J. 1991. Universal primers for amplification of three non-coding regions of chloroplast DNA. Plant Molecular Biology 17: 1105–1109.
+
+\item White, P. S. (1983) Corner’s rules in eastern deciduous trees: allometry and its implications for the adaptive architecture of trees. Bull. Torr. Bot. Club 110, 203–212.
+
+\item White T, Bruns T, Lee S, Taylor J. 1990. Amplification and direct sequencing of fungal ribosomal RNA genes for phylogenetics. In: Innis MA, Gelfand DH, Sninski JJ, White TJ, eds. PCR-protocols a guide to methods and applications. San Diego, CA, USA: Academic press, 315–322.
+\end{itemize}
+
+
+
+
+
+
+
+
+
+
+<!-- ## Leftover code -->
+
+
+<!-- ## OUwie results -->
+
+<!-- ```{r ouwie-setup} -->
+
+<!-- rm(list = ls()) -->
+
+<!-- pars.table.pc1 <- read.csv(here::here("output/fullpar_table_climpc1_new.csv")) -->
+<!-- pars.table.pc1$trait <- c("Stem Area", "Leaf Area", "Corola Length", "Petiole Length", "Hole Diameter")[match(pars.table.pc1$trait, c("stemarea", "leafarea", "corleng", "petleng", "holediam"))] -->
+<!-- pars.table.pc1.clean <- pars.table.pc1[apply(pars.table.pc1[, grep("theta", names(pars.table.pc1))], 1, function(x){!any(x > 15, na.rm = TRUE)}),] -->
+<!-- pars.table.pc1.clean <- pars.table.pc1.clean[apply(pars.table.pc1.clean[, grep("theta", names(pars.table.pc1.clean))], 1, function(x){!any(x < -15, na.rm = TRUE)}),] -->
+<!-- pars.table.pc1 <- pars.table.pc1.clean -->
+
+<!-- pars.table.pc2 <- read.csv(here::here("output/fullpar_table_climpc2_new.csv")) -->
+<!-- pars.table.pc2$trait <- c("Stem Area", "Leaf Area", "Corola Length", "Petiole Lengzth", "Hole Diameter")[match(pars.table.pc2$trait, c("stemarea", "leafarea", "corleng", "petleng", "holediam"))] -->
+<!-- pars.table.pc2.clean <- pars.table.pc2[apply(pars.table.pc2[, grep("theta", names(pars.table.pc2))], 1, function(x){!any(x > 15, na.rm = TRUE)}),] -->
+<!-- pars.table.pc2.clean <- pars.table.pc2.clean[apply(pars.table.pc2.clean[, grep("theta", names(pars.table.pc2.clean))], 1, function(x){!any(x < -15, na.rm = TRUE)}),] -->
+<!-- pars.table.pc2 <- pars.table.pc2.clean -->
+
+<!-- pars.table.pc3 <- read.csv(here::here("output/fullpar_table_climpc3_new.csv")) -->
+<!-- pars.table.pc3$trait <- c("Stem Area", "Leaf Area", "Corola Length", "Petiole Length", "Hole Diameter")[match(pars.table.pc3$trait, c("stemarea", "leafarea", "corleng", "petleng", "holediam"))] -->
+<!-- pars.table.pc3.clean <- pars.table.pc3[apply(pars.table.pc3[, grep("theta", names(pars.table.pc3))], 1, function(x){!any(x > 15, na.rm = TRUE)}),] -->
+<!-- pars.table.pc3.clean <- pars.table.pc3.clean[apply(pars.table.pc3.clean[, grep("theta", names(pars.table.pc3.clean))], 1, function(x){!any(x < -15, na.rm = TRUE)}),] -->
+<!-- pars.table.pc3 <- pars.table.pc3.clean -->
+
+<!-- colors <- setNames(brewer.pal(4, "Set1"), 1:4) -->
+<!-- sig.formatter <- function(x){cell_spec(x, format = "latex", bold = ifelse(x > 50, TRUE, FALSE), background = if(x >= 90){"ForestGreen"} else if(x < 90 & x >= 75){"Peach"} else if(x < 75 & x >= 50){"Goldenrod"})} -->
+
+<!-- library("cowplot") -->
+<!-- library("patchwork") -->
+
+<!-- data.plot.pc1 <- reshape2::melt(pars.table.pc1, id.vars = c("trait", "disc.trait", "simmap")) -->
+<!-- data.plot.pc1 <- data.plot.pc1[data.plot.pc1$trait != "Hole Diameter",] -->
+<!-- theta.plot.pc1 <- data.plot.pc1[grep("theta", data.plot.pc1$variable),] -->
+<!-- alpha.plot.pc1 <- data.plot.pc1[grep("alpha", data.plot.pc1$variable),] -->
+<!-- sigma.plot.pc1 <- data.plot.pc1[grep("sigma", data.plot.pc1$variable),] -->
+
+<!-- data.plot.pc2 <- reshape2::melt(pars.table.pc2, id.vars = c("trait", "disc.trait", "simmap")) -->
+<!-- data.plot.pc2 <- data.plot.pc2[data.plot.pc2$trait != "Hole Diameter",] -->
+<!-- theta.plot.pc2 <- data.plot.pc2[grep("theta", data.plot.pc2$variable),] -->
+<!-- alpha.plot.pc2 <- data.plot.pc2[grep("alpha", data.plot.pc2$variable),] -->
+<!-- sigma.plot.pc2 <- data.plot.pc2[grep("sigma", data.plot.pc2$variable),] -->
+
+<!-- data.plot.pc3 <- reshape2::melt(pars.table.pc3, id.vars = c("trait", "disc.trait", "simmap")) -->
+<!-- data.plot.pc3 <- data.plot.pc3[data.plot.pc3$trait != "Hole Diameter",] -->
+<!-- theta.plot.pc3 <- data.plot.pc3[grep("theta", data.plot.pc3$variable),] -->
+<!-- alpha.plot.pc3 <- data.plot.pc3[grep("alpha", data.plot.pc3$variable),] -->
+<!-- sigma.plot.pc3 <- data.plot.pc3[grep("sigma", data.plot.pc3$variable),] -->
+
+<!-- ## source(here::here("R/data_prep_ouwie_climpc.R")) -->
+
+<!-- states.app <- c(#"outgroup", -->
+<!--                 "none", -->
+<!--                 "variable", -->
+<!--                 "spines") -->
+<!-- states.arch <- c(#"shrub", -->
+<!--                  "multiple", -->
+<!--                  "single") -->
+<!-- states.domgrow <- c(#"outgroup", -->
+<!--                     "diffuse", -->
+<!--                     "apical") -->
+<!-- states.leafstruc <- c("thick", -->
+<!--                       "var", -->
+<!--                       "thin", -->
+<!--                       "succ") -->
+<!-- states.matsys <- c("het", -->
+<!--                    "nonHet", -->
+<!--                    "unisex") -->
+<!-- states.reward <- c(#"outgroup", -->
+<!--                    "absent", -->
+<!--                    "present") -->
+<!-- states.strategy <- c(#"outgroup", -->
+<!--                      "facult", -->
+<!--                      "oblig", -->
+<!--                      "lost") -->
+<!-- states.warts <- c(#"outgroup", -->
+<!--                   "variable", -->
+<!--                   "diff", -->
+<!--                   "lost") -->
+<!-- states.holediam.disc <- c(#"absent", -->
+<!--                           "sevLbase", -->
+<!--                           "oneLbase", -->
+<!--                           "allL") -->
+
+<!-- ``` -->
+
+<!-- <\!-- ## Domatium Growth - PC2 -\-> -->
+
+<!-- ```{r results = 'asis', echo = FALSE} -->
+
+<!-- if (knitr::is_latex_output()) { -->
+<!--     cat("\\begin{landscape}") -->
+<!-- } -->
+
+<!-- ``` -->
+
+
+<!-- ```{r pars-ouwie-domgrow-pc2, echo = FALSE, message = FALSE, warning = FALSE, fig.width = 13, fig.height = 8, fig.cap = "Distribution of model-averaged Theta (A), Alpha (B) and Sigma (C) values for PC2 of each continuous trait in association with different states of Domatium Growth. States represented in the x-axis: diffuse = Difuse; apical = Apical."} -->
+
+<!-- theta.domgrow.plot.pc2 <- subset(theta.plot.pc2, disc.trait == "domgrow") -->
+<!-- theta.domgrow.plot.pc2$variable <- as.character(theta.domgrow.plot.pc2$variable) -->
+<!-- theta.domgrow.plot.pc2 <- theta.domgrow.plot.pc2[theta.domgrow.plot.pc2$variable %in% paste0("theta", 1:length(states.domgrow)), ] -->
+
+<!-- alpha.domgrow.plot.pc2 <- subset(alpha.plot.pc2, disc.trait == "domgrow") -->
+<!-- alpha.domgrow.plot.pc2$variable <- as.character(alpha.domgrow.plot.pc2$variable) -->
+<!-- alpha.domgrow.plot.pc2 <- alpha.domgrow.plot.pc2[alpha.domgrow.plot.pc2$variable %in% paste0("alpha", 1:length(states.domgrow)), ] -->
+
+<!-- sigma.domgrow.plot.pc2 <- subset(sigma.plot.pc2, disc.trait == "domgrow") -->
+<!-- sigma.domgrow.plot.pc2$variable <- as.character(sigma.domgrow.plot.pc2$variable) -->
+<!-- sigma.domgrow.plot.pc2 <- sigma.domgrow.plot.pc2[sigma.domgrow.plot.pc2$variable %in% paste0("sigma", 1:length(states.domgrow)), ] -->
+
+<!-- col.domgrow <- colorRampPalette(met.brewer("Greek", 100))(2) -->
+
+<!-- theta.domgrow.pc2 <- -->
+<!--     ggplot(na.omit(theta.domgrow.plot.pc2)) + -->
+<!--     geom_jitter(aes(x = variable, y = value, colour = variable), alpha = 0.5, width = 0.1) + -->
+<!--     geom_boxplot(aes(x = variable, y = value, colour = variable), fill = NA, alpha = 0.1, lwd = 0.5, width = 0.5) + -->
+<!--     stat_summary(aes(x = variable, y = value), fun = "mean", geom = "point", size = 3, shape = 19) + -->
+<!--     scale_x_discrete(labels = states.domgrow) + -->
+<!--     scale_colour_manual(values = col.domgrow) + -->
+<!--     theme_cowplot() + -->
+<!--     #coord_flip() + -->
+<!--     #ylim(-2, 6) + -->
+<!--     #coord_flip() + -->
+<!--     labs(x = "Discrete State", y = "Theta") + -->
+<!--     facet_grid(trait ~ ., scales = "free_y") + -->
+<!--     theme(legend.position = "none", -->
+<!--           strip.background.y = element_blank(), -->
+<!--           strip.text.y = element_blank(), -->
+<!--           axis.title.x = element_blank()) -->
+
+<!-- alpha.domgrow.pc2 <- -->
+<!--     ggplot(na.omit(alpha.domgrow.plot.pc2)) + -->
+<!--     geom_jitter(aes(x = variable, y = value, colour = variable), alpha = 0.5, width = 0.1) + -->
+<!--     geom_boxplot(aes(x = variable, y = value, colour = variable), fill = NA, alpha = 0.1, lwd = 0.5, width = 0.5) + -->
+<!--     stat_summary(aes(x = variable, y = value), fun = "mean", geom = "point", size = 3, shape = 19) + -->
+<!--     scale_x_discrete(labels = states.domgrow) + -->
+<!--     scale_colour_manual(values = col.domgrow) + -->
+<!--     theme_cowplot() + -->
+<!--     #coord_flip() + -->
+<!--     #ylim(-2, 6) + -->
+<!--     #coord_flip() + -->
+<!--     labs(x = "Discrete State", y = "Alpha") + -->
+<!--     facet_grid(trait ~ ., scales = "free_y") + -->
+<!--     theme(legend.position = "none", -->
+<!--           strip.background.y = element_blank(), -->
+<!--           strip.text.y = element_blank(), -->
+<!--           axis.title.x = element_blank()) -->
+
+<!-- sigma.domgrow.pc2 <- -->
+<!--     ggplot(na.omit(sigma.domgrow.plot.pc2)) + -->
+<!--     geom_jitter(aes(x = variable, y = value, colour = variable), alpha = 0.5, width = 0.1) + -->
+<!--     geom_boxplot(aes(x = variable, y = value, colour = variable), fill = NA, alpha = 0.1, lwd = 0.5, width = 0.5) + -->
+<!--     stat_summary(aes(x = variable, y = value), fun = "mean", geom = "point", size = 3, shape = 19) + -->
+<!--     scale_x_discrete(labels = states.domgrow) + -->
+<!--     scale_colour_manual(values = col.domgrow) + -->
+<!--     theme_cowplot() + -->
+<!--     #coord_flip() + -->
+<!--     #ylim(-2, 6) + -->
+<!--     #coord_flip() + -->
+<!--     labs(x = "Discrete State", y = "Sigma") + -->
+<!--     facet_grid(trait ~ ., scales = "free_y") + -->
+<!--     theme(legend.position = "none", -->
+<!--           #strip.background.y = element_blank(), -->
+<!--           #strip.text.y = element_blank(), -->
+<!--           axis.title.x = element_blank()) -->
+
+<!-- (theta.domgrow.pc2 + alpha.domgrow.pc2 + sigma.domgrow.pc2) + -->
+<!--     plot_annotation(tag_levels = 'A') -->
+
+<!-- ``` -->
+
+<!-- ```{r results = 'asis', echo = FALSE} -->
+<!-- if (knitr::is_latex_output()) { -->
+<!--     cat("\\end{landscape}") -->
+<!-- } -->
+<!-- ``` -->
+
+
+<!-- <\!-- ## Domatium Growth - PC3 -\-> -->
+
+<!-- ```{r results = 'asis', echo = FALSE} -->
+
+<!-- if (knitr::is_latex_output()) { -->
+<!--     cat("\\begin{landscape}") -->
+<!-- } -->
+
+<!-- ``` -->
+
+
+<!-- ```{r pars-ouwie-domgrow-pc3, echo = FALSE, message = FALSE, warning = FALSE, fig.width = 13, fig.height = 8, fig.cap = "Distribution of model-averaged Theta (A), Alpha (B) and Sigma (C) values for PC3 of each continuous trait in association with different states of Domatium Growth. States represented in the x-axis: diffuse = Difuse; apical = Apical."} -->
+
+<!-- theta.domgrow.plot.pc3 <- subset(theta.plot.pc3, disc.trait == "domgrow") -->
+<!-- theta.domgrow.plot.pc3$variable <- as.character(theta.domgrow.plot.pc3$variable) -->
+<!-- theta.domgrow.plot.pc3 <- theta.domgrow.plot.pc3[theta.domgrow.plot.pc3$variable %in% paste0("theta", 1:length(states.domgrow)), ] -->
+
+<!-- alpha.domgrow.plot.pc3 <- subset(alpha.plot.pc3, disc.trait == "domgrow") -->
+<!-- alpha.domgrow.plot.pc3$variable <- as.character(alpha.domgrow.plot.pc3$variable) -->
+<!-- alpha.domgrow.plot.pc3 <- alpha.domgrow.plot.pc3[alpha.domgrow.plot.pc3$variable %in% paste0("alpha", 1:length(states.domgrow)), ] -->
+
+<!-- sigma.domgrow.plot.pc3 <- subset(sigma.plot.pc3, disc.trait == "domgrow") -->
+<!-- sigma.domgrow.plot.pc3$variable <- as.character(sigma.domgrow.plot.pc3$variable) -->
+<!-- sigma.domgrow.plot.pc3 <- sigma.domgrow.plot.pc3[sigma.domgrow.plot.pc3$variable %in% paste0("sigma", 1:length(states.domgrow)), ] -->
+
+<!-- theta.domgrow.pc3 <- -->
+<!--     ggplot(na.omit(theta.domgrow.plot.pc3)) + -->
+<!--     geom_jitter(aes(x = variable, y = value, colour = variable), alpha = 0.5, width = 0.1) + -->
+<!--     geom_boxplot(aes(x = variable, y = value, colour = variable), fill = NA, alpha = 0.1, lwd = 0.5, width = 0.5) + -->
+<!--     stat_summary(aes(x = variable, y = value), fun = "mean", geom = "point", size = 3, shape = 19) + -->
+<!--     scale_x_discrete(labels = states.domgrow) + -->
+<!--     scale_colour_manual(values = col.domgrow) + -->
+<!--     theme_cowplot() + -->
+<!--     #coord_flip() + -->
+<!--     #ylim(-2, 6) + -->
+<!--     #coord_flip() + -->
+<!--     labs(x = "Discrete State", y = "Theta") + -->
+<!--     facet_grid(trait ~ ., scales = "free_y") + -->
+<!--     theme(legend.position = "none", -->
+<!--           strip.background.y = element_blank(), -->
+<!--           strip.text.y = element_blank(), -->
+<!--           axis.title.x = element_blank()) -->
+
+<!-- alpha.domgrow.pc3 <- -->
+<!--     ggplot(na.omit(alpha.domgrow.plot.pc3)) + -->
+<!--     geom_jitter(aes(x = variable, y = value, colour = variable), alpha = 0.5, width = 0.1) + -->
+<!--     geom_boxplot(aes(x = variable, y = value, colour = variable), fill = NA, alpha = 0.1, lwd = 0.5, width = 0.5) + -->
+<!--     stat_summary(aes(x = variable, y = value), fun = "mean", geom = "point", size = 3, shape = 19) + -->
+<!--     scale_x_discrete(labels = states.domgrow) + -->
+<!--     scale_colour_manual(values = col.domgrow) + -->
+<!--     theme_cowplot() + -->
+<!--     #coord_flip() + -->
+<!--     #ylim(-2, 6) + -->
+<!--     #coord_flip() + -->
+<!--     labs(x = "Discrete State", y = "Alpha") + -->
+<!--     facet_grid(trait ~ ., scales = "free_y") + -->
+<!--     theme(legend.position = "none", -->
+<!--           strip.background.y = element_blank(), -->
+<!--           strip.text.y = element_blank(), -->
+<!--           axis.title.x = element_blank()) -->
+
+<!-- sigma.domgrow.pc3 <- -->
+<!--     ggplot(na.omit(sigma.domgrow.plot.pc3)) + -->
+<!--     geom_jitter(aes(x = variable, y = value, colour = variable), alpha = 0.5, width = 0.1) + -->
+<!--     geom_boxplot(aes(x = variable, y = value, colour = variable), fill = NA, alpha = 0.1, lwd = 0.5, width = 0.5) + -->
+<!--     stat_summary(aes(x = variable, y = value), fun = "mean", geom = "point", size = 3, shape = 19) + -->
+<!--     scale_x_discrete(labels = states.domgrow) + -->
+<!--     scale_colour_manual(values = col.domgrow) + -->
+<!--     theme_cowplot() + -->
+<!--     #coord_flip() + -->
+<!--     #ylim(-2, 6) + -->
+<!--     #coord_flip() + -->
+<!--     labs(x = "Discrete State", y = "Sigma") + -->
+<!--     facet_grid(trait ~ ., scales = "free_y") + -->
+<!--     theme(legend.position = "none", -->
+<!--           #strip.background.y = element_blank(), -->
+<!--           #strip.text.y = element_blank(), -->
+<!--           axis.title.x = element_blank()) -->
+
+<!-- (theta.domgrow.pc3 + alpha.domgrow.pc3 + sigma.domgrow.pc3) + -->
+<!--     plot_annotation(tag_levels = 'A') -->
+
+<!-- ``` -->
+
+<!-- ```{r results = 'asis', echo = FALSE} -->
+<!-- if (knitr::is_latex_output()) { -->
+<!--     cat("\\end{landscape}") -->
+<!-- } -->
+<!-- ``` -->
+
+
+<!-- <\!-- ## Reward - PC2 -\-> -->
+
+<!-- ```{r results = 'asis', echo = FALSE} -->
+<!-- if (knitr::is_latex_output()) { -->
+<!--     cat("\\begin{landscape}") -->
+<!-- } -->
+<!-- ``` -->
+
+<!-- ```{r pars-ouwie-reward-pc2, echo = FALSE, message = FALSE, warning = FALSE, fig.width = 13, fig.height = 8, fig.cap = "Distribution of model-averaged Theta (A), Alpha (B) and Sigma (C) values for PC2 of each continuous trait in association with different states of Reward. States represented in the x-axis: absent = Absent; present = Present."} -->
+
+<!-- theta.reward.plot.pc2 <- subset(theta.plot.pc2, disc.trait == "reward") -->
+<!-- theta.reward.plot.pc2$variable <- as.character(theta.reward.plot.pc2$variable) -->
+<!-- theta.reward.plot.pc2 <- theta.reward.plot.pc2[theta.reward.plot.pc2$variable %in% paste0("theta", 1:length(states.reward)), ] -->
+
+<!-- alpha.reward.plot.pc2 <- subset(alpha.plot.pc2, disc.trait == "reward") -->
+<!-- alpha.reward.plot.pc2$variable <- as.character(alpha.reward.plot.pc2$variable) -->
+<!-- alpha.reward.plot.pc2 <- alpha.reward.plot.pc2[alpha.reward.plot.pc2$variable %in% paste0("alpha", 1:length(states.reward)), ] -->
+
+<!-- sigma.reward.plot.pc2 <- subset(sigma.plot.pc2, disc.trait == "reward") -->
+<!-- sigma.reward.plot.pc2$variable <- as.character(sigma.reward.plot.pc2$variable) -->
+<!-- sigma.reward.plot.pc2 <- sigma.reward.plot.pc2[sigma.reward.plot.pc2$variable %in% paste0("sigma", 1:length(states.reward)), ] -->
+
+<!-- col.reward <- colorRampPalette(met.brewer("Hiroshige", 100))(2) -->
+
+<!-- theta.reward.pc2 <- -->
+<!--     ggplot(na.omit(theta.reward.plot.pc2)) + -->
+<!--     geom_jitter(aes(x = variable, y = value, colour = variable), alpha = 0.5, width = 0.1) + -->
+<!--     geom_boxplot(aes(x = variable, y = value, colour = variable), fill = NA, alpha = 0.1, lwd = 0.5, width = 0.5) + -->
+<!--     stat_summary(aes(x = variable, y = value), fun = "mean", geom = "point", size = 3, shape = 19) + -->
+<!--     scale_x_discrete(labels = states.reward) + -->
+<!--     scale_colour_manual(values = col.reward) + -->
+<!--     theme_cowplot() + -->
+<!--     #coord_flip() + -->
+<!--     #ylim(-2, 6) + -->
+<!--     #coord_flip() + -->
+<!--     labs(x = "Discrete State", y = "Theta") + -->
+<!--     facet_grid(trait ~ ., scales = "free_y") + -->
+<!--     theme(legend.position = "none", -->
+<!--           strip.background.y = element_blank(), -->
+<!--           strip.text.y = element_blank(), -->
+<!--           axis.title.x = element_blank()) -->
+
+<!-- alpha.reward.pc2 <- -->
+<!--     ggplot(na.omit(alpha.reward.plot.pc2)) + -->
+<!--     geom_jitter(aes(x = variable, y = value, colour = variable), alpha = 0.5, width = 0.1) + -->
+<!--     geom_boxplot(aes(x = variable, y = value, colour = variable), fill = NA, alpha = 0.1, lwd = 0.5, width = 0.5) + -->
+<!--     stat_summary(aes(x = variable, y = value), fun = "mean", geom = "point", size = 3, shape = 19) + -->
+<!--     scale_x_discrete(labels = states.reward) + -->
+<!--     scale_colour_manual(values = col.reward) + -->
+<!--     theme_cowplot() + -->
+<!--     #coord_flip() + -->
+<!--     #ylim(-2, 6) + -->
+<!--     #coord_flip() + -->
+<!--     labs(x = "Discrete State", y = "Alpha") + -->
+<!--     facet_grid(trait ~ ., scales = "free_y") + -->
+<!--     theme(legend.position = "none", -->
+<!--           strip.background.y = element_blank(), -->
+<!--           strip.text.y = element_blank(), -->
+<!--           axis.title.x = element_blank()) -->
+
+<!-- sigma.reward.pc2 <- -->
+<!--     ggplot(na.omit(sigma.reward.plot.pc2)) + -->
+<!--     geom_jitter(aes(x = variable, y = value, colour = variable), alpha = 0.5, width = 0.1) + -->
+<!--     geom_boxplot(aes(x = variable, y = value, colour = variable), fill = NA, alpha = 0.1, lwd = 0.5, width = 0.5) + -->
+<!--     stat_summary(aes(x = variable, y = value), fun = "mean", geom = "point", size = 3, shape = 19) + -->
+<!--     scale_x_discrete(labels = states.reward) + -->
+<!--     scale_colour_manual(values = col.reward) + -->
+<!--     theme_cowplot() + -->
+<!--     #coord_flip() + -->
+<!--     #ylim(-2, 6) + -->
+<!--     #coord_flip() + -->
+<!--     labs(x = "Discrete State", y = "Sigma") + -->
+<!--     facet_grid(trait ~ ., scales = "free_y") + -->
+<!--     theme(legend.position = "none", -->
+<!--           #strip.background.y = element_blank(), -->
+<!--           #strip.text.y = element_blank(), -->
+<!--           axis.title.x = element_blank()) -->
+
+<!-- (theta.reward.pc2 + alpha.reward.pc2 + sigma.reward.pc2) + -->
+<!--     plot_annotation(tag_levels = 'A') -->
+
+<!-- ``` -->
+
+<!-- ```{r results = 'asis', echo = FALSE} -->
+<!-- if (knitr::is_latex_output()) { -->
+<!--     cat("\\end{landscape}") -->
+<!-- } -->
+<!-- ``` -->
+
+
+<!-- <\!-- ## Reward - PC3 -\-> -->
+
+<!-- ```{r results = 'asis', echo = FALSE} -->
+<!-- if (knitr::is_latex_output()) { -->
+<!--     cat("\\begin{landscape}") -->
+<!-- } -->
+<!-- ``` -->
+
+<!-- ```{r pars-ouwie-reward-pc3, echo = FALSE, message = FALSE, warning = FALSE, fig.width = 13, fig.height = 8, fig.cap = "Distribution of model-averaged Theta (A), Alpha (B) and Sigma (C) values for PC3 of each continuous trait in association with different states of Reward. States represented in the x-axis: absent = Absent; present = Present."} -->
+
+<!-- theta.reward.plot.pc3 <- subset(theta.plot.pc3, disc.trait == "reward") -->
+<!-- theta.reward.plot.pc3$variable <- as.character(theta.reward.plot.pc3$variable) -->
+<!-- theta.reward.plot.pc3 <- theta.reward.plot.pc3[theta.reward.plot.pc3$variable %in% paste0("theta", 1:length(states.reward)), ] -->
+
+<!-- alpha.reward.plot.pc3 <- subset(alpha.plot.pc3, disc.trait == "reward") -->
+<!-- alpha.reward.plot.pc3$variable <- as.character(alpha.reward.plot.pc3$variable) -->
+<!-- alpha.reward.plot.pc3 <- alpha.reward.plot.pc3[alpha.reward.plot.pc3$variable %in% paste0("alpha", 1:length(states.reward)), ] -->
+
+<!-- sigma.reward.plot.pc3 <- subset(sigma.plot.pc3, disc.trait == "reward") -->
+<!-- sigma.reward.plot.pc3$variable <- as.character(sigma.reward.plot.pc3$variable) -->
+<!-- sigma.reward.plot.pc3 <- sigma.reward.plot.pc3[sigma.reward.plot.pc3$variable %in% paste0("sigma", 1:length(states.reward)), ] -->
+
+<!-- theta.reward.pc3 <- -->
+<!--     ggplot(na.omit(theta.reward.plot.pc3)) + -->
+<!--     geom_jitter(aes(x = variable, y = value, colour = variable), alpha = 0.5, width = 0.1) + -->
+<!--     geom_boxplot(aes(x = variable, y = value, colour = variable), fill = NA, alpha = 0.1, lwd = 0.5, width = 0.5) + -->
+<!--     stat_summary(aes(x = variable, y = value), fun = "mean", geom = "point", size = 3, shape = 19) + -->
+<!--     scale_x_discrete(labels = states.reward) + -->
+<!--     scale_colour_manual(values = col.reward) + -->
+<!--     theme_cowplot() + -->
+<!--     #coord_flip() + -->
+<!--     #ylim(-2, 6) + -->
+<!--     #coord_flip() + -->
+<!--     labs(x = "Discrete State", y = "Theta") + -->
+<!--     facet_grid(trait ~ ., scales = "free_y") + -->
+<!--     theme(legend.position = "none", -->
+<!--           strip.background.y = element_blank(), -->
+<!--           strip.text.y = element_blank(), -->
+<!--           axis.title.x = element_blank()) -->
+
+<!-- alpha.reward.pc3 <- -->
+<!--     ggplot(na.omit(alpha.reward.plot.pc3)) + -->
+<!--     geom_jitter(aes(x = variable, y = value, colour = variable), alpha = 0.5, width = 0.1) + -->
+<!--     geom_boxplot(aes(x = variable, y = value, colour = variable), fill = NA, alpha = 0.1, lwd = 0.5, width = 0.5) + -->
+<!--     stat_summary(aes(x = variable, y = value), fun = "mean", geom = "point", size = 3, shape = 19) + -->
+<!--     scale_x_discrete(labels = states.reward) + -->
+<!--     scale_colour_manual(values = col.reward) + -->
+<!--     theme_cowplot() + -->
+<!--     #coord_flip() + -->
+<!--     #ylim(-2, 6) + -->
+<!--     #coord_flip() + -->
+<!--     labs(x = "Discrete State", y = "Alpha") + -->
+<!--     facet_grid(trait ~ ., scales = "free_y") + -->
+<!--     theme(legend.position = "none", -->
+<!--           strip.background.y = element_blank(), -->
+<!--           strip.text.y = element_blank(), -->
+<!--           axis.title.x = element_blank()) -->
+
+<!-- sigma.reward.pc3 <- -->
+<!--     ggplot(na.omit(sigma.reward.plot.pc3)) + -->
+<!--     geom_jitter(aes(x = variable, y = value, colour = variable), alpha = 0.5, width = 0.1) + -->
+<!--     geom_boxplot(aes(x = variable, y = value, colour = variable), fill = NA, alpha = 0.1, lwd = 0.5, width = 0.5) + -->
+<!--     stat_summary(aes(x = variable, y = value), fun = "mean", geom = "point", size = 3, shape = 19) + -->
+<!--     scale_x_discrete(labels = states.reward) + -->
+<!--     scale_colour_manual(values = col.reward) + -->
+<!--     theme_cowplot() + -->
+<!--     #coord_flip() + -->
+<!--     #ylim(-2, 6) + -->
+<!--     #coord_flip() + -->
+<!--     labs(x = "Discrete State", y = "Sigma") + -->
+<!--     facet_grid(trait ~ ., scales = "free_y") + -->
+<!--     theme(legend.position = "none", -->
+<!--           #strip.background.y = element_blank(), -->
+<!--           #strip.text.y = element_blank(), -->
+<!--           axis.title.x = element_blank()) -->
+
+<!-- (theta.reward.pc3 + alpha.reward.pc3 + sigma.reward.pc3) + -->
+<!--     plot_annotation(tag_levels = 'A') -->
+
+<!-- ``` -->
+
+<!-- ```{r results = 'asis', echo = FALSE} -->
+<!-- if (knitr::is_latex_output()) { -->
+<!--     cat("\\end{landscape}") -->
+<!-- } -->
+<!-- ``` -->
+
+<!-- <\!-- ## Warts - PC2 -\-> -->
+
+<!-- ```{r results = 'asis', echo = FALSE} -->
+
+<!-- if (knitr::is_latex_output()) { -->
+<!--     cat("\\begin{landscape}") -->
+<!-- } -->
+
+<!-- ``` -->
+
+<!-- ```{r pars-ouwie-warts-pc2, echo = FALSE, message = FALSE, warning = FALSE, fig.width = 13, fig.height = 8, fig.cap = "Distribution of model-averaged Theta (A), Alpha (B) and Sigma (C) values for PC2 of each continuous trait in association with different states of Warts. States represented in the x-axis: variable = Variable; diff = Differentiated; lost = Lost."} -->
+
+<!-- theta.warts.plot.pc2 <- subset(theta.plot.pc2, disc.trait == "warts") -->
+<!-- theta.warts.plot.pc2$variable <- as.character(theta.warts.plot.pc2$variable) -->
+<!-- theta.warts.plot.pc2 <- theta.warts.plot.pc2[theta.warts.plot.pc2$variable %in% paste0("theta", 1:length(states.warts)), ] -->
+
+<!-- alpha.warts.plot.pc2 <- subset(alpha.plot.pc2, disc.trait == "warts") -->
+<!-- alpha.warts.plot.pc2$variable <- as.character(alpha.warts.plot.pc2$variable) -->
+<!-- alpha.warts.plot.pc2 <- alpha.warts.plot.pc2[alpha.warts.plot.pc2$variable %in% paste0("alpha", 1:length(states.warts)), ] -->
+
+<!-- sigma.warts.plot.pc2 <- subset(sigma.plot.pc2, disc.trait == "warts") -->
+<!-- sigma.warts.plot.pc2$variable <- as.character(sigma.warts.plot.pc2$variable) -->
+<!-- sigma.warts.plot.pc2 <- sigma.warts.plot.pc2[sigma.warts.plot.pc2$variable %in% paste0("sigma", 1:length(states.warts)), ] -->
+
+<!-- col.warts <- colorRampPalette(met.brewer("Isfahan2", 100))(4)[c(1, 3, 4)] -->
+
+<!-- theta.warts.pc2 <- -->
+<!--     ggplot(na.omit(theta.warts.plot.pc2)) + -->
+<!--     geom_jitter(aes(x = variable, y = value, colour = variable), alpha = 0.5, width = 0.1) + -->
+<!--     geom_boxplot(aes(x = variable, y = value, colour = variable), fill = NA, alpha = 0.1, lwd = 0.5, width = 0.5) + -->
+<!--     stat_summary(aes(x = variable, y = value), fun = "mean", geom = "point", size = 3, shape = 19) + -->
+<!--     scale_x_discrete(labels = states.warts) + -->
+<!--     scale_colour_manual(values = col.warts) + -->
+<!--     theme_cowplot() + -->
+<!--     #coord_flip() + -->
+<!--     #ylim(-2, 6) + -->
+<!--     #coord_flip() + -->
+<!--     labs(x = "Discrete State", y = "Theta") + -->
+<!--     facet_grid(trait ~ ., scales = "free_y") + -->
+<!--     theme(legend.position = "none", -->
+<!--           strip.background.y = element_blank(), -->
+<!--           strip.text.y = element_blank(), -->
+<!--           axis.title.x = element_blank()) -->
+
+<!-- alpha.warts.pc2 <- -->
+<!--     ggplot(na.omit(alpha.warts.plot.pc2)) + -->
+<!--     geom_jitter(aes(x = variable, y = value, colour = variable), alpha = 0.5, width = 0.1) + -->
+<!--     geom_boxplot(aes(x = variable, y = value, colour = variable), fill = NA, alpha = 0.1, lwd = 0.5, width = 0.5) + -->
+<!--     stat_summary(aes(x = variable, y = value), fun = "mean", geom = "point", size = 3, shape = 19) + -->
+<!--     scale_x_discrete(labels = states.warts) + -->
+<!--     scale_colour_manual(values = col.warts) + -->
+<!--     theme_cowplot() + -->
+<!--     #coord_flip() + -->
+<!--     #ylim(-2, 6) + -->
+<!--     #coord_flip() + -->
+<!--     labs(x = "Discrete State", y = "Alpha") + -->
+<!--     facet_grid(trait ~ ., scales = "free_y") + -->
+<!--     theme(legend.position = "none", -->
+<!--           strip.background.y = element_blank(), -->
+<!--           strip.text.y = element_blank(), -->
+<!--           axis.title.x = element_blank()) -->
+
+<!-- sigma.warts.pc2 <- -->
+<!--     ggplot(na.omit(sigma.warts.plot.pc2)) + -->
+<!--     geom_jitter(aes(x = variable, y = value, colour = variable), alpha = 0.5, width = 0.1) + -->
+<!--     geom_boxplot(aes(x = variable, y = value, colour = variable), fill = NA, alpha = 0.1, lwd = 0.5, width = 0.5) + -->
+<!--     stat_summary(aes(x = variable, y = value), fun = "mean", geom = "point", size = 3, shape = 19) + -->
+<!--     scale_x_discrete(labels = states.warts) + -->
+<!--     scale_colour_manual(values = col.warts) + -->
+<!--     theme_cowplot() + -->
+<!--     #coord_flip() + -->
+<!--     #ylim(-2, 6) + -->
+<!--     #coord_flip() + -->
+<!--     labs(x = "Discrete State", y = "Sigma") + -->
+<!--     facet_grid(trait ~ ., scales = "free_y") + -->
+<!--     theme(legend.position = "none", -->
+<!--           #strip.background.y = element_blank(), -->
+<!--           #strip.text.y = element_blank(), -->
+<!--           axis.title.x = element_blank()) -->
+
+<!-- (theta.warts.pc2 + alpha.warts.pc2 + sigma.warts.pc2) + -->
+<!--     plot_annotation(tag_levels = 'A') -->
+
+<!-- ``` -->
+
+<!-- ```{r results = 'asis', echo = FALSE} -->
+<!-- if (knitr::is_latex_output()) { -->
+<!--     cat("\\end{landscape}") -->
+<!-- } -->
+<!-- ``` -->
+
+
+<!-- <\!-- ## Warts - PC3 -\-> -->
+
+<!-- ```{r results = 'asis', echo = FALSE} -->
+
+<!-- if (knitr::is_latex_output()) { -->
+<!--     cat("\\begin{landscape}") -->
+<!-- } -->
+
+<!-- ``` -->
+
+<!-- ```{r pars-ouwie-warts-pc3, echo = FALSE, message = FALSE, warning = FALSE, fig.width = 13, fig.height = 8, fig.cap = "Distribution of model-averaged Theta (A), Alpha (B) and Sigma (C) values for PC3 of each continuous trait in association with different states of Warts. States represented in the x-axis: variable = Variable; diff = Differentiated; lost = Lost."} -->
+
+<!-- theta.warts.plot.pc3 <- subset(theta.plot.pc3, disc.trait == "warts") -->
+<!-- theta.warts.plot.pc3$variable <- as.character(theta.warts.plot.pc3$variable) -->
+<!-- theta.warts.plot.pc3 <- theta.warts.plot.pc3[theta.warts.plot.pc3$variable %in% paste0("theta", 1:length(states.warts)), ] -->
+
+<!-- alpha.warts.plot.pc3 <- subset(alpha.plot.pc3, disc.trait == "warts") -->
+<!-- alpha.warts.plot.pc3$variable <- as.character(alpha.warts.plot.pc3$variable) -->
+<!-- alpha.warts.plot.pc3 <- alpha.warts.plot.pc3[alpha.warts.plot.pc3$variable %in% paste0("alpha", 1:length(states.warts)), ] -->
+
+<!-- sigma.warts.plot.pc3 <- subset(sigma.plot.pc3, disc.trait == "warts") -->
+<!-- sigma.warts.plot.pc3$variable <- as.character(sigma.warts.plot.pc3$variable) -->
+<!-- sigma.warts.plot.pc3 <- sigma.warts.plot.pc3[sigma.warts.plot.pc3$variable %in% paste0("sigma", 1:length(states.warts)), ] -->
+
+<!-- theta.warts.pc3 <- -->
+<!--     ggplot(na.omit(theta.warts.plot.pc3)) + -->
+<!--     geom_jitter(aes(x = variable, y = value, colour = variable), alpha = 0.5, width = 0.1) + -->
+<!--     geom_boxplot(aes(x = variable, y = value, colour = variable), fill = NA, alpha = 0.1, lwd = 0.5, width = 0.5) + -->
+<!--     stat_summary(aes(x = variable, y = value), fun = "mean", geom = "point", size = 3, shape = 19) + -->
+<!--     scale_x_discrete(labels = states.warts) + -->
+<!--     scale_colour_manual(values = col.warts) + -->
+<!--     theme_cowplot() + -->
+<!--     #coord_flip() + -->
+<!--     #ylim(-2, 6) + -->
+<!--     #coord_flip() + -->
+<!--     labs(x = "Discrete State", y = "Theta") + -->
+<!--     facet_grid(trait ~ ., scales = "free_y") + -->
+<!--     theme(legend.position = "none", -->
+<!--           strip.background.y = element_blank(), -->
+<!--           strip.text.y = element_blank(), -->
+<!--           axis.title.x = element_blank()) -->
+
+<!-- alpha.warts.pc3 <- -->
+<!--     ggplot(na.omit(alpha.warts.plot.pc3)) + -->
+<!--     geom_jitter(aes(x = variable, y = value, colour = variable), alpha = 0.5, width = 0.1) + -->
+<!--     geom_boxplot(aes(x = variable, y = value, colour = variable), fill = NA, alpha = 0.1, lwd = 0.5, width = 0.5) + -->
+<!--     stat_summary(aes(x = variable, y = value), fun = "mean", geom = "point", size = 3, shape = 19) + -->
+<!--     scale_x_discrete(labels = states.warts) + -->
+<!--     scale_colour_manual(values = col.warts) + -->
+<!--     theme_cowplot() + -->
+<!--     #coord_flip() + -->
+<!--     #ylim(-2, 6) + -->
+<!--     #coord_flip() + -->
+<!--     labs(x = "Discrete State", y = "Alpha") + -->
+<!--     facet_grid(trait ~ ., scales = "free_y") + -->
+<!--     theme(legend.position = "none", -->
+<!--           strip.background.y = element_blank(), -->
+<!--           strip.text.y = element_blank(), -->
+<!--           axis.title.x = element_blank()) -->
+
+<!-- sigma.warts.pc3 <- -->
+<!--     ggplot(na.omit(sigma.warts.plot.pc3)) + -->
+<!--     geom_jitter(aes(x = variable, y = value, colour = variable), alpha = 0.5, width = 0.1) + -->
+<!--     geom_boxplot(aes(x = variable, y = value, colour = variable), fill = NA, alpha = 0.1, lwd = 0.5, width = 0.5) + -->
+<!--     stat_summary(aes(x = variable, y = value), fun = "mean", geom = "point", size = 3, shape = 19) + -->
+<!--     scale_x_discrete(labels = states.warts) + -->
+<!--     scale_colour_manual(values = col.warts) + -->
+<!--     theme_cowplot() + -->
+<!--     #coord_flip() + -->
+<!--     #ylim(-2, 6) + -->
+<!--     #coord_flip() + -->
+<!--     labs(x = "Discrete State", y = "Sigma") + -->
+<!--     facet_grid(trait ~ ., scales = "free_y") + -->
+<!--     theme(legend.position = "none", -->
+<!--           #strip.background.y = element_blank(), -->
+<!--           #strip.text.y = element_blank(), -->
+<!--           axis.title.x = element_blank()) -->
+
+<!-- (theta.warts.pc3 + alpha.warts.pc3 + sigma.warts.pc3) + -->
+<!--     plot_annotation(tag_levels = 'A') -->
+
+<!-- ``` -->
+
+<!-- ```{r results = 'asis', echo = FALSE} -->
+<!-- if (knitr::is_latex_output()) { -->
+<!--     cat("\\end{landscape}") -->
+<!-- } -->
+<!-- ``` -->
+
+<!-- <\!-- ## Hole Diameter - PC2 -\-> -->
+
+<!-- ```{r results = 'asis', echo = FALSE} -->
+
+<!-- if (knitr::is_latex_output()) { -->
+<!--     cat("\\begin{landscape}") -->
+<!-- } -->
+
+<!-- ``` -->
+
+
+<!-- ```{r pars-ouwie-holediam.disc-pc2, echo = FALSE, message = FALSE, warning = FALSE, fig.width = 13, fig.height = 8, fig.cap = "Distribution of model-averaged Theta (A), Alpha (B) and Sigma (C) values for PC2 of each continuous trait in association with different states of Hole Diameter. States represented in the x-axis: sevLbase = Several Large at the Base; oneLbase = One Large at the Base; allL = All Large."} -->
+
+<!-- theta.holediam.disc.plot.pc2 <- subset(theta.plot.pc2, disc.trait == "holediam.disc") -->
+<!-- theta.holediam.disc.plot.pc2$variable <- as.character(theta.holediam.disc.plot.pc2$variable) -->
+<!-- theta.holediam.disc.plot.pc2 <- theta.holediam.disc.plot.pc2[theta.holediam.disc.plot.pc2$variable %in% paste0("theta", 1:length(states.holediam.disc)), ] -->
+
+<!-- alpha.holediam.disc.plot.pc2 <- subset(alpha.plot.pc2, disc.trait == "holediam.disc") -->
+<!-- alpha.holediam.disc.plot.pc2$variable <- as.character(alpha.holediam.disc.plot.pc2$variable) -->
+<!-- alpha.holediam.disc.plot.pc2 <- alpha.holediam.disc.plot.pc2[alpha.holediam.disc.plot.pc2$variable %in% paste0("alpha", 1:length(states.holediam.disc)), ] -->
+
+<!-- sigma.holediam.disc.plot.pc2 <- subset(sigma.plot.pc2, disc.trait == "holediam.disc") -->
+<!-- sigma.holediam.disc.plot.pc2$variable <- as.character(sigma.holediam.disc.plot.pc2$variable) -->
+<!-- sigma.holediam.disc.plot.pc2 <- sigma.holediam.disc.plot.pc2[sigma.holediam.disc.plot.pc2$variable %in% paste0("sigma", 1:length(states.holediam.disc)), ] -->
+
+<!-- col.holediam <- colorRampPalette(met.brewer("Veronese", 100))(4)[c(1, 3, 4)] -->
+
+<!-- theta.holediam.disc.pc2 <- -->
+<!--     ggplot(na.omit(theta.holediam.disc.plot.pc2)) + -->
+<!--     geom_jitter(aes(x = variable, y = value, colour = variable), alpha = 0.5, width = 0.1) + -->
+<!--     geom_boxplot(aes(x = variable, y = value, colour = variable), fill = NA, alpha = 0.1, lwd = 0.5, width = 0.5) + -->
+<!--     stat_summary(aes(x = variable, y = value), fun = "mean", geom = "point", size = 3, shape = 19) + -->
+<!--     scale_x_discrete(labels = states.holediam.disc) + -->
+<!--     scale_colour_manual(values = col.holediam) + -->
+<!--     theme_cowplot() + -->
+<!--     #coord_flip() + -->
+<!--     #ylim(-2, 6) + -->
+<!--     #coord_flip() + -->
+<!--     labs(x = "Discrete State", y = "Theta") + -->
+<!--     facet_grid(trait ~ ., scales = "free_y") + -->
+<!--     theme(legend.position = "none", -->
+<!--           strip.background.y = element_blank(), -->
+<!--           strip.text.y = element_blank(), -->
+<!--           axis.title.x = element_blank(), -->
+<!--           axis.text.x = element_text(angle = 45, hjust = 1)) -->
+
+<!-- alpha.holediam.disc.pc2 <- -->
+<!--     ggplot(na.omit(alpha.holediam.disc.plot.pc2)) + -->
+<!--     geom_jitter(aes(x = variable, y = value, colour = variable), alpha = 0.5, width = 0.1) + -->
+<!--     geom_boxplot(aes(x = variable, y = value, colour = variable), fill = NA, alpha = 0.1, lwd = 0.5, width = 0.5) + -->
+<!--     stat_summary(aes(x = variable, y = value), fun = "mean", geom = "point", size = 3, shape = 19) + -->
+<!--     scale_x_discrete(labels = states.holediam.disc) + -->
+<!--     scale_colour_manual(values = col.holediam) + -->
+<!--     theme_cowplot() + -->
+<!--     #coord_flip() + -->
+<!--     #ylim(-2, 6) + -->
+<!--     #coord_flip() + -->
+<!--     labs(x = "Discrete State", y = "Alpha") + -->
+<!--     facet_grid(trait ~ ., scales = "free_y") + -->
+<!--     theme(legend.position = "none", -->
+<!--           strip.background.y = element_blank(), -->
+<!--           strip.text.y = element_blank(), -->
+<!--           axis.title.x = element_blank(), -->
+<!--           axis.text.x = element_text(angle = 45, hjust = 1)) -->
+
+<!-- sigma.holediam.disc.pc2 <- -->
+<!--     ggplot(na.omit(sigma.holediam.disc.plot.pc2)) + -->
+<!--     geom_jitter(aes(x = variable, y = value, colour = variable), alpha = 0.5, width = 0.1) + -->
+<!--     geom_boxplot(aes(x = variable, y = value, colour = variable), fill = NA, alpha = 0.1, lwd = 0.5, width = 0.5) + -->
+<!--     stat_summary(aes(x = variable, y = value), fun = "mean", geom = "point", size = 3, shape = 19) + -->
+<!--     scale_x_discrete(labels = states.holediam.disc) + -->
+<!--     scale_colour_manual(values = col.holediam) + -->
+<!--     theme_cowplot() + -->
+<!--     #coord_flip() + -->
+<!--     #ylim(-2, 6) + -->
+<!--     #coord_flip() + -->
+<!--     labs(x = "Discrete State", y = "Sigma") + -->
+<!--     facet_grid(trait ~ ., scales = "free_y") + -->
+<!--     theme(legend.position = "none", -->
+<!--           #strip.background.y = element_blank(), -->
+<!--           #strip.text.y = element_blank(), -->
+<!--           axis.title.x = element_blank(), -->
+<!--           axis.text.x = element_text(angle = 45, hjust = 1)) -->
+
+<!-- (theta.holediam.disc.pc2 + alpha.holediam.disc.pc2 + sigma.holediam.disc.pc2) + -->
+<!--     plot_annotation(tag_levels = 'A') -->
+
+<!-- ``` -->
+
+<!-- ```{r results = 'asis', echo = FALSE} -->
+<!-- if (knitr::is_latex_output()) { -->
+<!--     cat("\\end{landscape}") -->
+<!-- } -->
+<!-- ``` -->
+
+
+<!-- <\!-- ## Hole Diameter - PC3 -\-> -->
+
+<!-- ```{r results = 'asis', echo = FALSE} -->
+
+<!-- if (knitr::is_latex_output()) { -->
+<!--     cat("\\begin{landscape}") -->
+<!-- } -->
+
+<!-- ``` -->
+
+
+<!-- ```{r pars-ouwie-holediam.disc-pc3, echo = FALSE, message = FALSE, warning = FALSE, fig.width = 13, fig.height = 8, fig.cap = "Distribution of model-averaged Theta (A), Alpha (B) and Sigma (C) values for PC3 of each continuous trait in association with different states of Hole Diameter. States represented in the x-axis: sevLbase = Several Large at the Base; oneLbase = One Large at the Base; allL = All Large."} -->
+
+<!-- theta.holediam.disc.plot.pc3 <- subset(theta.plot.pc3, disc.trait == "holediam.disc") -->
+<!-- theta.holediam.disc.plot.pc3$variable <- as.character(theta.holediam.disc.plot.pc3$variable) -->
+<!-- theta.holediam.disc.plot.pc3 <- theta.holediam.disc.plot.pc3[theta.holediam.disc.plot.pc3$variable %in% paste0("theta", 1:length(states.holediam.disc)), ] -->
+
+<!-- alpha.holediam.disc.plot.pc3 <- subset(alpha.plot.pc3, disc.trait == "holediam.disc") -->
+<!-- alpha.holediam.disc.plot.pc3$variable <- as.character(alpha.holediam.disc.plot.pc3$variable) -->
+<!-- alpha.holediam.disc.plot.pc3 <- alpha.holediam.disc.plot.pc3[alpha.holediam.disc.plot.pc3$variable %in% paste0("alpha", 1:length(states.holediam.disc)), ] -->
+
+<!-- sigma.holediam.disc.plot.pc3 <- subset(sigma.plot.pc3, disc.trait == "holediam.disc") -->
+<!-- sigma.holediam.disc.plot.pc3$variable <- as.character(sigma.holediam.disc.plot.pc3$variable) -->
+<!-- sigma.holediam.disc.plot.pc3 <- sigma.holediam.disc.plot.pc3[sigma.holediam.disc.plot.pc3$variable %in% paste0("sigma", 1:length(states.holediam.disc)), ] -->
+
+<!-- theta.holediam.disc.pc3 <- -->
+<!--     ggplot(na.omit(theta.holediam.disc.plot.pc3)) + -->
+<!--     geom_jitter(aes(x = variable, y = value, colour = variable), alpha = 0.5, width = 0.1) + -->
+<!--     geom_boxplot(aes(x = variable, y = value, colour = variable), fill = NA, alpha = 0.1, lwd = 0.5, width = 0.5) + -->
+<!--     stat_summary(aes(x = variable, y = value), fun = "mean", geom = "point", size = 3, shape = 19) + -->
+<!--     scale_x_discrete(labels = states.holediam.disc) + -->
+<!--     scale_colour_manual(values = col.holediam) + -->
+<!--     theme_cowplot() + -->
+<!--     #coord_flip() + -->
+<!--     #ylim(-2, 6) + -->
+<!--     #coord_flip() + -->
+<!--     labs(x = "Discrete State", y = "Theta") + -->
+<!--     facet_grid(trait ~ ., scales = "free_y") + -->
+<!--     theme(legend.position = "none", -->
+<!--           strip.background.y = element_blank(), -->
+<!--           strip.text.y = element_blank(), -->
+<!--           axis.title.x = element_blank(), -->
+<!--           axis.text.x = element_text(angle = 45, hjust = 1)) -->
+
+<!-- alpha.holediam.disc.pc3 <- -->
+<!--     ggplot(na.omit(alpha.holediam.disc.plot.pc3)) + -->
+<!--     geom_jitter(aes(x = variable, y = value, colour = variable), alpha = 0.5, width = 0.1) + -->
+<!--     geom_boxplot(aes(x = variable, y = value, colour = variable), fill = NA, alpha = 0.1, lwd = 0.5, width = 0.5) + -->
+<!--     stat_summary(aes(x = variable, y = value), fun = "mean", geom = "point", size = 3, shape = 19) + -->
+<!--     scale_x_discrete(labels = states.holediam.disc) + -->
+<!--     scale_colour_manual(values = col.holediam) + -->
+<!--     theme_cowplot() + -->
+<!--     #coord_flip() + -->
+<!--     #ylim(-2, 6) + -->
+<!--     #coord_flip() + -->
+<!--     labs(x = "Discrete State", y = "Alpha") + -->
+<!--     facet_grid(trait ~ ., scales = "free_y") + -->
+<!--     theme(legend.position = "none", -->
+<!--           strip.background.y = element_blank(), -->
+<!--           strip.text.y = element_blank(), -->
+<!--           axis.title.x = element_blank(), -->
+<!--           axis.text.x = element_text(angle = 45, hjust = 1)) -->
+
+<!-- sigma.holediam.disc.pc3 <- -->
+<!--     ggplot(na.omit(sigma.holediam.disc.plot.pc3)) + -->
+<!--     geom_jitter(aes(x = variable, y = value, colour = variable), alpha = 0.5, width = 0.1) + -->
+<!--     geom_boxplot(aes(x = variable, y = value, colour = variable), fill = NA, alpha = 0.1, lwd = 0.5, width = 0.5) + -->
+<!--     stat_summary(aes(x = variable, y = value), fun = "mean", geom = "point", size = 3, shape = 19) + -->
+<!--     scale_x_discrete(labels = states.holediam.disc) + -->
+<!--     scale_colour_manual(values = col.holediam) + -->
+<!--     theme_cowplot() + -->
+<!--     #coord_flip() + -->
+<!--     #ylim(-2, 6) + -->
+<!--     #coord_flip() + -->
+<!--     labs(x = "Discrete State", y = "Sigma") + -->
+<!--     facet_grid(trait ~ ., scales = "free_y") + -->
+<!--     theme(legend.position = "none", -->
+<!--           #strip.background.y = element_blank(), -->
+<!--           #strip.text.y = element_blank(), -->
+<!--           axis.title.x = element_blank(), -->
+<!--           axis.text.x = element_text(angle = 45, hjust = 1)) -->
+
+<!-- (theta.holediam.disc.pc3 + alpha.holediam.disc.pc3 + sigma.holediam.disc.pc3) + -->
+<!--     plot_annotation(tag_levels = 'A') -->
+
+<!-- ``` -->
+
+<!-- ```{r results = 'asis', echo = FALSE} -->
+<!-- if (knitr::is_latex_output()) { -->
+<!--     cat("\\end{landscape}") -->
+<!-- } -->
+<!-- ``` -->
+
+
+
+
+<!-- ### With hidden state -->
+
+<!-- ```{r results = 'asis', echo = FALSE} -->
+
+<!-- if (knitr::is_latex_output()) { -->
+<!--     cat("\\begin{landscape}") -->
+<!-- } -->
+
+<!-- ``` -->
+
+<!-- ```{r houwie-summary-hidden} -->
+
+<!-- library("kableExtra") -->
+
+<!-- houwie.sum.hid <- -->
+<!--     rbind(data.frame(model = rownames(domgrow.corleng.table.hid), domgrow.corleng.table.hid, traits = rep("Domatium Growth + Corolla Length", nrow(domgrow.corleng.table.hid))), -->
+<!--           data.frame(model = rownames(domgrow.leafarea.table.hid), domgrow.leafarea.table.hid, traits = rep("Domatium Growth + Leaf Area", nrow(domgrow.leafarea.table.hid))), -->
+<!--           data.frame(model = rownames(domgrow.petleng.table.hid), domgrow.petleng.table.hid, traits = rep("Domatium Growth + Petiole Length", nrow(domgrow.petleng.table.hid))), -->
+<!--           data.frame(model = rownames(domgrow.stemarea.table.hid), domgrow.stemarea.table.hid, traits = rep("Domatium Growth + Stem Area", nrow(domgrow.stemarea.table.hid))), -->
+<!--           data.frame(model = rownames(holediam.corleng.table.hid), holediam.corleng.table.hid, traits = rep("Hole Diameter + Corolla Length", nrow(holediam.corleng.table.hid))), -->
+<!--           data.frame(model = rownames(holediam.leafarea.table.hid), holediam.leafarea.table.hid, traits = rep("Hole Diameter + Leaf Area", nrow(holediam.leafarea.table.hid))), -->
+<!--           data.frame(model = rownames(holediam.petleng.table.hid), holediam.petleng.table.hid, traits = rep("Hole Diameter + Petiole Length", nrow(holediam.petleng.table.hid))), -->
+<!--           data.frame(model = rownames(holediam.stemarea.table.hid), holediam.stemarea.table.hid, traits = rep("Hole Diameter + Stem Area", nrow(holediam.stemarea.table.hid))), -->
+<!--           data.frame(model = rownames(reward.corleng.table.hid), reward.corleng.table.hid, traits = rep("Reward + Corolla Length", nrow(reward.corleng.table.hid))), -->
+<!--           data.frame(model = rownames(reward.leafarea.table.hid), reward.leafarea.table.hid, traits = rep("Reward + Leaf Area", nrow(reward.leafarea.table.hid))), -->
+<!--           data.frame(model = rownames(reward.petleng.table.hid), reward.petleng.table.hid, traits = rep("Reward + Petiole Length", nrow(reward.petleng.table.hid))), -->
+<!--           data.frame(model = rownames(reward.stemarea.table.hid), reward.stemarea.table.hid, traits = rep("Reward + Stem Area", nrow(reward.stemarea.table.hid))), -->
+<!--           data.frame(model = rownames(warts.corleng.table.hid), warts.corleng.table.hid, traits = rep("Warts + Corolla Length", nrow(warts.corleng.table.hid))), -->
+<!--           data.frame(model = rownames(warts.leafarea.table.hid), warts.leafarea.table.hid, traits = rep("Warts + Leaf Area", nrow(warts.leafarea.table.hid))), -->
+<!--           data.frame(model = rownames(warts.petleng.table.hid), warts.petleng.table.hid, traits = rep("Warts + Petiole Length", nrow(warts.petleng.table.hid))), -->
+<!--           data.frame(model = rownames(warts.stemarea.table.hid), warts.stemarea.table.hid, traits = rep("Warts + Stem Area", nrow(warts.stemarea.table.hid))), -->
+<!--           make.row.names = FALSE -->
+<!--           ) -->
+
+<!-- row_spec(kable(houwie.sum.hid, -->
+<!--       format = "latex", -->
+<!--       rownames = NULL, -->
+<!--       longtable = TRUE, -->
+<!--       digits = 3, -->
+<!--       caption = "With hidden state"), row = which(houwie.sum.hid$dBIC == 0), bold = TRUE) %>% -->
+<!--     kable_styling(latex_options = c("hold_position", "repeat_header"), full_width = FALSE) -->
+
+<!-- ``` -->
+
+<!-- ```{r results = 'asis', echo = FALSE} -->
+
+<!-- if (knitr::is_latex_output()) { -->
+<!--     cat("\\end{landscape}") -->
+<!-- } -->
+
+<!-- ``` -->
