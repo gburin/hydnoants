@@ -48,8 +48,8 @@ vignettes/*.pdf
 *~
 
 # Excel spreadsheets
-*.xls
-*.xlsx
+# *.xls
+# *.xlsx
 
 # Compressed tree files
 data/posterior_trees_large.zip
