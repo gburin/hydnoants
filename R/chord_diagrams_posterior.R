@@ -1,5 +1,5 @@
-here::i_am("R/chord_diagrams_main_results.R")
-source(here::here("R/data_prep_ouwie_climpc.R"))
+here::i_am("R/chord_diagrams_posterior.R")
+source(here::here("R/data_prep_ouwie_climpc_posterior.R"))
 library("circlize")
 library("MetBrewer")
 library("ggplot2")
@@ -57,6 +57,7 @@ ouwie.chord <- function(trait, disc.trait, par, pc, pal){
 }
 
 ## disc.traits <- unique(theta.plot.pc1$disc.trait)
+disc.traits <- c("domgrow", "reward", "warts", "holediam.disc")
 pars <- c("theta", "alpha", "sigma")
 traits <- gsub(" ", ".", unique(theta.plot.pc1$trait))
 nstates <- c(3, 2, 2, 4, 3, 2, 3, 3, 3)
@@ -76,9 +77,8 @@ pals <- c(#"Egypt",
           #"Morgenstern"
           )
 
-disc.traits <- c("domgrow", "reward", "warts", "holediam.disc")
 
-pdf(here::here("output/chord_diags_diffs_mcc.pdf"), height = 40, width = 40)
+pdf(here::here("output/chord_diags_diffs_posterior_new.pdf"), height = 40, width = 40)
 par(mfrow = c(length(disc.traits), length(traits) * length(pars)), mar = c(0, 0, 0, 0))
 for(i in 1:length(disc.traits)){
     for(j in 1:length(traits)){

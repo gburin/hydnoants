@@ -8,12 +8,12 @@
 ## ## load("../output/first_analysis.RData")
 ## knitr::opts_chunk$set(fig.pos = "h", out.extra = "")
 ## ## source("../R/ouwie_summary_mcc.R")
-## pars.table.pc1 <- read.csv(here::here("output/fullpar_table_climpc1.csv"))
-## pars.table.pc1$trait <- c("Stem Area", "Leaf Area", "Corola Length", "Petiole Length", "Hole Diameter")[match(pars.table.pc1$trait, c("stemarea", "leafarea", "corleng", "petleng", "holediam"))]
-## pars.table.pc2 <- read.csv(here::here("output/fullpar_table_climpc2.csv"))
-## pars.table.pc2$trait <- c("Stem Area", "Leaf Area", "Corola Length", "Petiole Length", "Hole Diameter")[match(pars.table.pc2$trait, c("stemarea", "leafarea", "corleng", "petleng", "holediam"))]
-## pars.table.pc3 <- read.csv(here::here("output/fullpar_table_climpc3.csv"))
-## pars.table.pc3$trait <- c("Stem Area", "Leaf Area", "Corola Length", "Petiole Length", "Hole Diameter")[match(pars.table.pc3$trait, c("stemarea", "leafarea", "corleng", "petleng", "holediam"))]
+pars.table.pc1 <- read.csv(here::here("output/fullpar_table_climpc1.csv"))
+pars.table.pc1$trait <- c("Stem Area", "Leaf Area", "Corola Length", "Petiole Length", "Hole Diameter")[match(pars.table.pc1$trait, c("stemarea", "leafarea", "corleng", "petleng", "holediam"))]
+pars.table.pc2 <- read.csv(here::here("output/fullpar_table_climpc2.csv"))
+pars.table.pc2$trait <- c("Stem Area", "Leaf Area", "Corola Length", "Petiole Length", "Hole Diameter")[match(pars.table.pc2$trait, c("stemarea", "leafarea", "corleng", "petleng", "holediam"))]
+pars.table.pc3 <- read.csv(here::here("output/fullpar_table_climpc3.csv"))
+pars.table.pc3$trait <- c("Stem Area", "Leaf Area", "Corola Length", "Petiole Length", "Hole Diameter")[match(pars.table.pc3$trait, c("stemarea", "leafarea", "corleng", "petleng", "holediam"))]
 ## colors <- setNames(brewer.pal(4, "Set1"), 1:4)
 
 states.app <- c(#"outgroup",
@@ -1207,95 +1207,95 @@ for(i in 1:length(agg.holediam.disc.diff.pc1$Group.1)){
 
 ### PC2
 
-theta.holediam.disc.plot.pc2 <- subset(theta.plot.pc2, disc.trait == "holediam.disc")
-theta.holediam.disc.plot.pc2$variable <- as.character(theta.holediam.disc.plot.pc2$variable)
-#theta.holediam.disc.plot.pc2 <- theta.holediam.disc.plot.pc2[theta.holediam.disc.plot.pc2$value >= -10 & theta.holediam.disc.plot.pc2$value <= 10, ]
+## theta.holediam.disc.plot.pc2 <- subset(theta.plot.pc2, disc.trait == "holediam.disc")
+## theta.holediam.disc.plot.pc2$variable <- as.character(theta.holediam.disc.plot.pc2$variable)
+## #theta.holediam.disc.plot.pc2 <- theta.holediam.disc.plot.pc2[theta.holediam.disc.plot.pc2$value >= -10 & theta.holediam.disc.plot.pc2$value <= 10, ]
 
-alpha.holediam.disc.plot.pc2 <- subset(alpha.plot.pc2, disc.trait == "holediam.disc")
-alpha.holediam.disc.plot.pc2$variable <- as.character(alpha.holediam.disc.plot.pc2$variable)
-#alpha.holediam.disc.plot.pc2 <- alpha.holediam.disc.plot.pc2[alpha.holediam.disc.plot.pc2$value >= -10 & alpha.holediam.disc.plot.pc2$value <= 10, ]
+## alpha.holediam.disc.plot.pc2 <- subset(alpha.plot.pc2, disc.trait == "holediam.disc")
+## alpha.holediam.disc.plot.pc2$variable <- as.character(alpha.holediam.disc.plot.pc2$variable)
+## #alpha.holediam.disc.plot.pc2 <- alpha.holediam.disc.plot.pc2[alpha.holediam.disc.plot.pc2$value >= -10 & alpha.holediam.disc.plot.pc2$value <= 10, ]
 
-sigma.holediam.disc.plot.pc2 <- subset(sigma.plot.pc2, disc.trait == "holediam.disc")
-sigma.holediam.disc.plot.pc2$variable <- as.character(sigma.holediam.disc.plot.pc2$variable)
-#sigma.holediam.disc.plot.pc2 <- sigma.holediam.disc.plot.pc2[sigma.holediam.disc.plot.pc2$value >= -10 & sigma.holediam.disc.plot.pc2$value <= 10, ]
+## sigma.holediam.disc.plot.pc2 <- subset(sigma.plot.pc2, disc.trait == "holediam.disc")
+## sigma.holediam.disc.plot.pc2$variable <- as.character(sigma.holediam.disc.plot.pc2$variable)
+## #sigma.holediam.disc.plot.pc2 <- sigma.holediam.disc.plot.pc2[sigma.holediam.disc.plot.pc2$value >= -10 & sigma.holediam.disc.plot.pc2$value <= 10, ]
 
-holediam.disc.plot.diff.pc2 <- pars.table.pc2[pars.table.pc2$disc.trait == "holediam.disc", 
-                                    c("trait", "simmap", "disc.trait",
-                                      paste0("theta", 1:length(states.holediam.disc)),
-                                      paste0("alpha", 1:length(states.holediam.disc)),
-                                      paste0("sigma", 1:length(states.holediam.disc)))]
-holediam.disc.diff.pc2 <- data.frame(state = c("None", "Spines", "Variable"),
-                           none = sum(holediam.disc.plot.diff.pc2[, grep("theta", names(holediam.disc.plot.diff.pc2))] >= holediam.disc.plot.diff.pc2$theta1))
-
-
-#### Differences
-holediam.disc.plot.diff.pc2 <- pars.table.pc2[pars.table.pc2$disc.trait == "holediam.disc", 
-                                    c("trait", "simmap", "disc.trait",
-                                      paste0("theta", 1:length(states.holediam.disc)),
-                                      paste0("alpha", 1:length(states.holediam.disc)),
-                                      paste0("sigma", 1:length(states.holediam.disc)))]
-
-for(i in 1:length(states.holediam.disc)){
-    for(j in 1:length(states.holediam.disc)){
-        holediam.disc.plot.diff.pc2[, paste0("theta", i, j)] <- holediam.disc.plot.diff.pc2[, paste0("theta", i)] > holediam.disc.plot.diff.pc2[, paste0("theta", j)]
-        holediam.disc.plot.diff.pc2[, paste0("alpha", i, j)] <- holediam.disc.plot.diff.pc2[, paste0("alpha", i)] > holediam.disc.plot.diff.pc2[, paste0("alpha", j)]
-        holediam.disc.plot.diff.pc2[, paste0("sigma", i, j)] <- holediam.disc.plot.diff.pc2[, paste0("sigma", i)] > holediam.disc.plot.diff.pc2[, paste0("sigma", j)]
-    }
-}
-
-agg.holediam.disc.diff.pc2 <- aggregate(holediam.disc.plot.diff.pc2[, (4 + 3*length(states.holediam.disc)):ncol(holediam.disc.plot.diff.pc2)], by = list(holediam.disc.plot.diff.pc2$trait, holediam.disc.plot.diff.pc2$disc.trait), FUN = sum)
-
-for(i in 1:length(agg.holediam.disc.diff.pc2$Group.1)){
-    assign(paste0("holediam.disc.diff.theta.pc2.", gsub(" ", ".", agg.holediam.disc.diff.pc2$Group.1[i])), as.data.frame(matrix(as.numeric(unlist(agg.holediam.disc.diff.pc2[i, grep("theta", names(agg.holediam.disc.diff.pc2))])), ncol = length(states.holediam.disc), nrow = length(states.holediam.disc), byrow = TRUE), row.names = states.holediam.disc))
-    assign(paste0("holediam.disc.diff.alpha.pc2.", gsub(" ", ".", agg.holediam.disc.diff.pc2$Group.1[i])), as.data.frame(matrix(as.numeric(unlist(agg.holediam.disc.diff.pc2[i, grep("alpha", names(agg.holediam.disc.diff.pc2))])), ncol = length(states.holediam.disc), nrow = length(states.holediam.disc), byrow = TRUE), row.names = states.holediam.disc))
-    assign(paste0("holediam.disc.diff.sigma.pc2.", gsub(" ", ".", agg.holediam.disc.diff.pc2$Group.1[i])), as.data.frame(matrix(as.numeric(unlist(agg.holediam.disc.diff.pc2[i, grep("sigma", names(agg.holediam.disc.diff.pc2))])), ncol = length(states.holediam.disc), nrow = length(states.holediam.disc), byrow = TRUE), row.names = states.holediam.disc))
-}
+## holediam.disc.plot.diff.pc2 <- pars.table.pc2[pars.table.pc2$disc.trait == "holediam.disc", 
+##                                     c("trait", "simmap", "disc.trait",
+##                                       paste0("theta", 1:length(states.holediam.disc)),
+##                                       paste0("alpha", 1:length(states.holediam.disc)),
+##                                       paste0("sigma", 1:length(states.holediam.disc)))]
+## holediam.disc.diff.pc2 <- data.frame(state = c("None", "Spines", "Variable"),
+##                            none = sum(holediam.disc.plot.diff.pc2[, grep("theta", names(holediam.disc.plot.diff.pc2))] >= holediam.disc.plot.diff.pc2$theta1))
 
 
+## #### Differences
+## holediam.disc.plot.diff.pc2 <- pars.table.pc2[pars.table.pc2$disc.trait == "holediam.disc", 
+##                                     c("trait", "simmap", "disc.trait",
+##                                       paste0("theta", 1:length(states.holediam.disc)),
+##                                       paste0("alpha", 1:length(states.holediam.disc)),
+##                                       paste0("sigma", 1:length(states.holediam.disc)))]
 
-### PC3
+## for(i in 1:length(states.holediam.disc)){
+##     for(j in 1:length(states.holediam.disc)){
+##         holediam.disc.plot.diff.pc2[, paste0("theta", i, j)] <- holediam.disc.plot.diff.pc2[, paste0("theta", i)] > holediam.disc.plot.diff.pc2[, paste0("theta", j)]
+##         holediam.disc.plot.diff.pc2[, paste0("alpha", i, j)] <- holediam.disc.plot.diff.pc2[, paste0("alpha", i)] > holediam.disc.plot.diff.pc2[, paste0("alpha", j)]
+##         holediam.disc.plot.diff.pc2[, paste0("sigma", i, j)] <- holediam.disc.plot.diff.pc2[, paste0("sigma", i)] > holediam.disc.plot.diff.pc2[, paste0("sigma", j)]
+##     }
+## }
 
-theta.holediam.disc.plot.pc3 <- subset(theta.plot.pc3, disc.trait == "holediam.disc")
-theta.holediam.disc.plot.pc3$variable <- as.character(theta.holediam.disc.plot.pc3$variable)
-#theta.holediam.disc.plot.pc3 <- theta.holediam.disc.plot.pc3[theta.holediam.disc.plot.pc3$value >= -10 & theta.holediam.disc.plot.pc3$value <= 10, ]
+## agg.holediam.disc.diff.pc2 <- aggregate(holediam.disc.plot.diff.pc2[, (4 + 3*length(states.holediam.disc)):ncol(holediam.disc.plot.diff.pc2)], by = list(holediam.disc.plot.diff.pc2$trait, holediam.disc.plot.diff.pc2$disc.trait), FUN = sum)
 
-alpha.holediam.disc.plot.pc3 <- subset(alpha.plot.pc3, disc.trait == "holediam.disc")
-alpha.holediam.disc.plot.pc3$variable <- as.character(alpha.holediam.disc.plot.pc3$variable)
-#alpha.holediam.disc.plot.pc3 <- alpha.holediam.disc.plot.pc3[alpha.holediam.disc.plot.pc3$value >= -10 & alpha.holediam.disc.plot.pc3$value <= 10, ]
-
-sigma.holediam.disc.plot.pc3 <- subset(sigma.plot.pc3, disc.trait == "holediam.disc")
-sigma.holediam.disc.plot.pc3$variable <- as.character(sigma.holediam.disc.plot.pc3$variable)
-#sigma.holediam.disc.plot.pc3 <- sigma.holediam.disc.plot.pc3[sigma.holediam.disc.plot.pc3$value >= -10 & sigma.holediam.disc.plot.pc3$value <= 10, ]
-
-holediam.disc.plot.diff.pc3 <- pars.table.pc3[pars.table.pc3$disc.trait == "holediam.disc", 
-                                    c("trait", "simmap", "disc.trait",
-                                      paste0("theta", 1:length(states.holediam.disc)),
-                                      paste0("alpha", 1:length(states.holediam.disc)),
-                                      paste0("sigma", 1:length(states.holediam.disc)))]
-holediam.disc.diff.pc3 <- data.frame(state = c("None", "Spines", "Variable"),
-                           none = sum(holediam.disc.plot.diff.pc3[, grep("theta", names(holediam.disc.plot.diff.pc3))] >= holediam.disc.plot.diff.pc3$theta1))
+## for(i in 1:length(agg.holediam.disc.diff.pc2$Group.1)){
+##     assign(paste0("holediam.disc.diff.theta.pc2.", gsub(" ", ".", agg.holediam.disc.diff.pc2$Group.1[i])), as.data.frame(matrix(as.numeric(unlist(agg.holediam.disc.diff.pc2[i, grep("theta", names(agg.holediam.disc.diff.pc2))])), ncol = length(states.holediam.disc), nrow = length(states.holediam.disc), byrow = TRUE), row.names = states.holediam.disc))
+##     assign(paste0("holediam.disc.diff.alpha.pc2.", gsub(" ", ".", agg.holediam.disc.diff.pc2$Group.1[i])), as.data.frame(matrix(as.numeric(unlist(agg.holediam.disc.diff.pc2[i, grep("alpha", names(agg.holediam.disc.diff.pc2))])), ncol = length(states.holediam.disc), nrow = length(states.holediam.disc), byrow = TRUE), row.names = states.holediam.disc))
+##     assign(paste0("holediam.disc.diff.sigma.pc2.", gsub(" ", ".", agg.holediam.disc.diff.pc2$Group.1[i])), as.data.frame(matrix(as.numeric(unlist(agg.holediam.disc.diff.pc2[i, grep("sigma", names(agg.holediam.disc.diff.pc2))])), ncol = length(states.holediam.disc), nrow = length(states.holediam.disc), byrow = TRUE), row.names = states.holediam.disc))
+## }
 
 
-#### Differences
-holediam.disc.plot.diff.pc3 <- pars.table.pc3[pars.table.pc3$disc.trait == "holediam.disc", 
-                                    c("trait", "simmap", "disc.trait",
-                                      paste0("theta", 1:length(states.holediam.disc)),
-                                      paste0("alpha", 1:length(states.holediam.disc)),
-                                      paste0("sigma", 1:length(states.holediam.disc)))]
 
-for(i in 1:length(states.holediam.disc)){
-    for(j in 1:length(states.holediam.disc)){
-        holediam.disc.plot.diff.pc3[, paste0("theta", i, j)] <- holediam.disc.plot.diff.pc3[, paste0("theta", i)] > holediam.disc.plot.diff.pc3[, paste0("theta", j)]
-        holediam.disc.plot.diff.pc3[, paste0("alpha", i, j)] <- holediam.disc.plot.diff.pc3[, paste0("alpha", i)] > holediam.disc.plot.diff.pc3[, paste0("alpha", j)]
-        holediam.disc.plot.diff.pc3[, paste0("sigma", i, j)] <- holediam.disc.plot.diff.pc3[, paste0("sigma", i)] > holediam.disc.plot.diff.pc3[, paste0("sigma", j)]
-    }
-}
+## ### PC3
 
-agg.holediam.disc.diff.pc3 <- aggregate(holediam.disc.plot.diff.pc3[, (4 + 3*length(states.holediam.disc)):ncol(holediam.disc.plot.diff.pc3)], by = list(holediam.disc.plot.diff.pc3$trait, holediam.disc.plot.diff.pc3$disc.trait), FUN = sum)
+## theta.holediam.disc.plot.pc3 <- subset(theta.plot.pc3, disc.trait == "holediam.disc")
+## theta.holediam.disc.plot.pc3$variable <- as.character(theta.holediam.disc.plot.pc3$variable)
+## #theta.holediam.disc.plot.pc3 <- theta.holediam.disc.plot.pc3[theta.holediam.disc.plot.pc3$value >= -10 & theta.holediam.disc.plot.pc3$value <= 10, ]
 
-for(i in 1:length(agg.holediam.disc.diff.pc3$Group.1)){
-    assign(paste0("holediam.disc.diff.theta.pc3.", gsub(" ", ".", agg.holediam.disc.diff.pc3$Group.1[i])), as.data.frame(matrix(as.numeric(unlist(agg.holediam.disc.diff.pc3[i, grep("theta", names(agg.holediam.disc.diff.pc3))])), ncol = length(states.holediam.disc), nrow = length(states.holediam.disc), byrow = TRUE), row.names = states.holediam.disc))
-    assign(paste0("holediam.disc.diff.alpha.pc3.", gsub(" ", ".", agg.holediam.disc.diff.pc3$Group.1[i])), as.data.frame(matrix(as.numeric(unlist(agg.holediam.disc.diff.pc3[i, grep("alpha", names(agg.holediam.disc.diff.pc3))])), ncol = length(states.holediam.disc), nrow = length(states.holediam.disc), byrow = TRUE), row.names = states.holediam.disc))
-    assign(paste0("holediam.disc.diff.sigma.pc3.", gsub(" ", ".", agg.holediam.disc.diff.pc3$Group.1[i])), as.data.frame(matrix(as.numeric(unlist(agg.holediam.disc.diff.pc3[i, grep("sigma", names(agg.holediam.disc.diff.pc3))])), ncol = length(states.holediam.disc), nrow = length(states.holediam.disc), byrow = TRUE), row.names = states.holediam.disc))
-}
+## alpha.holediam.disc.plot.pc3 <- subset(alpha.plot.pc3, disc.trait == "holediam.disc")
+## alpha.holediam.disc.plot.pc3$variable <- as.character(alpha.holediam.disc.plot.pc3$variable)
+## #alpha.holediam.disc.plot.pc3 <- alpha.holediam.disc.plot.pc3[alpha.holediam.disc.plot.pc3$value >= -10 & alpha.holediam.disc.plot.pc3$value <= 10, ]
+
+## sigma.holediam.disc.plot.pc3 <- subset(sigma.plot.pc3, disc.trait == "holediam.disc")
+## sigma.holediam.disc.plot.pc3$variable <- as.character(sigma.holediam.disc.plot.pc3$variable)
+## #sigma.holediam.disc.plot.pc3 <- sigma.holediam.disc.plot.pc3[sigma.holediam.disc.plot.pc3$value >= -10 & sigma.holediam.disc.plot.pc3$value <= 10, ]
+
+## holediam.disc.plot.diff.pc3 <- pars.table.pc3[pars.table.pc3$disc.trait == "holediam.disc", 
+##                                     c("trait", "simmap", "disc.trait",
+##                                       paste0("theta", 1:length(states.holediam.disc)),
+##                                       paste0("alpha", 1:length(states.holediam.disc)),
+##                                       paste0("sigma", 1:length(states.holediam.disc)))]
+## holediam.disc.diff.pc3 <- data.frame(state = c("None", "Spines", "Variable"),
+##                            none = sum(holediam.disc.plot.diff.pc3[, grep("theta", names(holediam.disc.plot.diff.pc3))] >= holediam.disc.plot.diff.pc3$theta1))
+
+
+## #### Differences
+## holediam.disc.plot.diff.pc3 <- pars.table.pc3[pars.table.pc3$disc.trait == "holediam.disc", 
+##                                     c("trait", "simmap", "disc.trait",
+##                                       paste0("theta", 1:length(states.holediam.disc)),
+##                                       paste0("alpha", 1:length(states.holediam.disc)),
+##                                       paste0("sigma", 1:length(states.holediam.disc)))]
+
+## for(i in 1:length(states.holediam.disc)){
+##     for(j in 1:length(states.holediam.disc)){
+##         holediam.disc.plot.diff.pc3[, paste0("theta", i, j)] <- holediam.disc.plot.diff.pc3[, paste0("theta", i)] > holediam.disc.plot.diff.pc3[, paste0("theta", j)]
+##         holediam.disc.plot.diff.pc3[, paste0("alpha", i, j)] <- holediam.disc.plot.diff.pc3[, paste0("alpha", i)] > holediam.disc.plot.diff.pc3[, paste0("alpha", j)]
+##         holediam.disc.plot.diff.pc3[, paste0("sigma", i, j)] <- holediam.disc.plot.diff.pc3[, paste0("sigma", i)] > holediam.disc.plot.diff.pc3[, paste0("sigma", j)]
+##     }
+## }
+
+## agg.holediam.disc.diff.pc3 <- aggregate(holediam.disc.plot.diff.pc3[, (4 + 3*length(states.holediam.disc)):ncol(holediam.disc.plot.diff.pc3)], by = list(holediam.disc.plot.diff.pc3$trait, holediam.disc.plot.diff.pc3$disc.trait), FUN = sum)
+
+## for(i in 1:length(agg.holediam.disc.diff.pc3$Group.1)){
+##     assign(paste0("holediam.disc.diff.theta.pc3.", gsub(" ", ".", agg.holediam.disc.diff.pc3$Group.1[i])), as.data.frame(matrix(as.numeric(unlist(agg.holediam.disc.diff.pc3[i, grep("theta", names(agg.holediam.disc.diff.pc3))])), ncol = length(states.holediam.disc), nrow = length(states.holediam.disc), byrow = TRUE), row.names = states.holediam.disc))
+##     assign(paste0("holediam.disc.diff.alpha.pc3.", gsub(" ", ".", agg.holediam.disc.diff.pc3$Group.1[i])), as.data.frame(matrix(as.numeric(unlist(agg.holediam.disc.diff.pc3[i, grep("alpha", names(agg.holediam.disc.diff.pc3))])), ncol = length(states.holediam.disc), nrow = length(states.holediam.disc), byrow = TRUE), row.names = states.holediam.disc))
+##     assign(paste0("holediam.disc.diff.sigma.pc3.", gsub(" ", ".", agg.holediam.disc.diff.pc3$Group.1[i])), as.data.frame(matrix(as.numeric(unlist(agg.holediam.disc.diff.pc3[i, grep("sigma", names(agg.holediam.disc.diff.pc3))])), ncol = length(states.holediam.disc), nrow = length(states.holediam.disc), byrow = TRUE), row.names = states.holediam.disc))
+## }
 

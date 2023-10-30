@@ -494,7 +494,7 @@ for(i = 1:20) %dopar% {
 ##### ARD
 for(i = 1:20) %dopar% {
     reward.stemarea.ard.nohid <- vector(mode = "list", length = length(cont.models))
-    trait.cont <- "corola.length"
+    trait.cont <- "stem.area"
     sampled.tree <- posterior.trees[[trees.sample[i]]]
     tree.pruned <- drop.tip(sampled.tree, tip = sampled.tree$tip.label[!(sampled.tree$tip.label %in% fulldata.ingroup$species[!is.na(fulldata.ingroup[, trait.cont])])])
     for(i in 1:length(cont.models)){
