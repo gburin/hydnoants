@@ -122,7 +122,7 @@ if (knitr::is_latex_output()) {
 
 ```{r primers-table, results = 'asis'}
 
-primers <- read.csv(here("manuscript/2nd_round/primers.csv"))
+primers <- read.csv(here("data/primers.csv"))
 
 column_spec(kable(primers, format = "latex", align = "c", escape = FALSE, label = "primers", booktabs = TRUE, caption = "Primers used in this study"), column = 1:4, width = c("1in", "2.8in", "2.8in", "2in")) %>%
     kable_styling(font_size = 7, latex_options = c("striped"), stripe_color = "gray!15",)
@@ -529,7 +529,7 @@ kable(setNames(data.frame(phylANOVA(warsa.comp.data$phy, x = setNames(warsa.comp
 
 ```{r, echo = FALSE, fig.cap = "The evolution of specialized mutualism with Dolichoderinae (\\textit{Philidris} and \\textit{Anonychomyrma}) ant species is associated with shifts in mating system. Both trees are stochastic mapping analyses performed in the R package phytools under the best-fitting ARD model. The taxa colour-coding is the same as in Fig. 1, with in red species forming facultative and generalist symbioses with ants, in green species forming obligate and specialized symbioses, and in blue species that have lost the symbiosis with ants. Non-homostylous includes mostly species heterostylous species, as well as a handful of functionally unisexual species. Homostyly is a proxy for selfing, and observations in greenhouse (GC) for a few species is consistent with this. On the right, we coded domatium inhabitants as Dolichoderinae ants, for species whose principal ant symbionts are Dolichoderinae genera \\textit{Philidris} or \\textit{Anonychomyrma}, and 'other' for species which either associate with many distinct ant species or none. This does not precludes that some Dolichoderine specialists are sometimes inhabited by other ant species, and vice versa that Dolichoderinae ants sometimes inhabit plants from the 'other' category. \\textbf{Test for correlated evolution}: to test whether symbiont type evolved jointly with mating type, we used Pagel's (1994) test for correlated evolution, as implemented in BayesTraits V3. We ran independent versus dependent models of evolution, and used Bayes Factor (BF) to test for the support of the correlated model. We obtained Log BF = 13.48 (Log Marginal likelihood of dependent model vs. independent models were -101.40 and -108.14, respectively). This suggests that the evolution of symbioses with aggresive Dolichoderinae ants is associated with shifts to selfing, consistent with the mitigation of ant-pollinator conflicts.", out.width = "6in"}
 
-knitr::include_graphics(here("manuscript/2nd_round/bayestraits.png"))
+knitr::include_graphics(here("manuscript/figs/bayestraits.png"))
 
 #img <- readPNG(here("manuscript/2nd_round/bayestraits.png"))
 #grid.raster(img, height = 20, default.units = "in")
@@ -835,7 +835,7 @@ if (knitr::is_latex_output()) {
 
 library("png")
 library("grid")
-img <- readPNG(here("manuscript/figs/alpha_plots_ouwie.png"))
+img <- readPNG(here("manuscript/figs/sigma_plots_ouwie.png"))
 grid.raster(img, width = 12, default.units = "in")
 
 ```
