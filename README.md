@@ -4,7 +4,7 @@ Authors: [Gustavo Burin](mailto:gustavo.burin@nhm.ac.uk), [Laura C. E. Campbell]
 
 This repository contains all the code and data used in the manuscript.
 
-![](manuscript/final_figs/Fig1.png)
+![](manuscript/figs/final_figs/Fig1.png)
 
 ## Data
 
