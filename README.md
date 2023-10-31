@@ -21,6 +21,8 @@ If you use the cleaned data please cite as follows:
 ## Analyses
 The analysis code is located in the ./R folder, divided into main analysis (`./R/houwie_analysis.R`) and supplementary analyses (`./R/houwie_analysis_posterior.R` and `./R/run_ouwie_climpc.R`). The results are summarized into `.R` files that generate the figures for all plots (both from the main text and the supplementary material), with commented lines to save them as external files. These scripts generate the base elements for the main figures. The results from all analyses are provided into subfolders that follow the same structure as the scripts used to generate them, and other side data and results (e.g. taxonomy check) are made available through `.RDS`. `.xlsx` or `.csv` files.
 
+To correctly compile the supplementary material, you will need to download the `.RDS` files from FigShare, and save them in the `./output/` folder.
+
 -------
 ## Other folders
 
