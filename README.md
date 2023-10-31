@@ -10,7 +10,7 @@ This repository contains all the code and data used in the manuscript.
 
 * `/data` contains the cleaned data used in the analyses, including the phylogeny (MCC and posterior distribution).
 
-All raw and cleaned data are also available from the [FigShare.com](10.6084/m9.figshare.24466210). 
+All raw and cleaned data are also available from the [FigShare.com](https://figshare.com/articles/dataset/Data_and_outputs_from_Mutualisms_drive_plant_trait_evolution_beyond_interaction-related_traits_/24466210). 
 
 If you use the cleaned data please cite as follows: 
 > Gustavo Burin; Laura C. E. Campbell; Susanne S. Renner; E. Toby Kiers; Guillaume Chomicki (2023). Dataset: "Mutualisms drive plant trait evolution beyond interaction-related traits". FigShare.com. (10.6084/m9.figshare.24466210).
