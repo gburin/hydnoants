@@ -36,7 +36,7 @@ for(i in 1:20){
     model.pars.domgrow.corleng[[i]]$tree <- paste0("tree", sprintf("%02d", i))
 }
 domgrow.corleng.full <- plyr::ldply(model.pars.domgrow.corleng)
-domgrow.corleng.full$tip_state <- factor(c("Apical", "Diffuse")[as.numeric(domgrow.corleng.full$tip_state)], levels = c("Apical", "Diffuse"))
+domgrow.corleng.full$tip_state <- factor(c("Diffuse", "Apical")[as.numeric(domgrow.corleng.full$tip_state)], levels = c("Diffuse", "Apical"))
 domgrow.corleng.plot <- reshape2::melt(domgrow.corleng.full)
 domgrow.corleng.plot$value <- round(domgrow.corleng.plot$value, 3)
 
@@ -110,7 +110,7 @@ for(i in 1:20){
     model.pars.domgrow.leafarea[[i]]$tree <- paste0("tree", sprintf("%02d", i))
 }
 domgrow.leafarea.full <- plyr::ldply(model.pars.domgrow.leafarea)
-domgrow.leafarea.full$tip_state <- factor(c("Apical", "Diffuse")[as.numeric(domgrow.leafarea.full$tip_state)], levels = c("Apical", "Diffuse"))
+domgrow.leafarea.full$tip_state <- factor(c("Diffuse", "Apical")[as.numeric(domgrow.leafarea.full$tip_state)], levels = c("Diffuse", "Apical"))
 domgrow.leafarea.plot <- reshape2::melt(domgrow.leafarea.full)
 domgrow.leafarea.plot$value <- round(domgrow.leafarea.plot$value, 3)
 
@@ -185,7 +185,7 @@ for(i in 1:20){
     model.pars.domgrow.petleng[[i]]$tree <- paste0("tree", sprintf("%02d", i))
 }
 domgrow.petleng.full <- plyr::ldply(model.pars.domgrow.petleng)
-domgrow.petleng.full$tip_state <- factor(c("Apical", "Diffuse")[as.numeric(domgrow.petleng.full$tip_state)], levels = c("Apical", "Diffuse"))
+domgrow.petleng.full$tip_state <- factor(c("Diffuse", "Apical")[as.numeric(domgrow.petleng.full$tip_state)], levels = c("Diffuse", "Apical"))
 domgrow.petleng.plot <- reshape2::melt(domgrow.petleng.full)
 domgrow.petleng.plot$value <- round(domgrow.petleng.plot$value, 3)
 
@@ -260,7 +260,7 @@ for(i in 1:20){
     model.pars.domgrow.stemarea[[i]]$tree <- paste0("tree", sprintf("%02d", i))
 }
 domgrow.stemarea.full <- plyr::ldply(model.pars.domgrow.stemarea)
-domgrow.stemarea.full$tip_state <- factor(c("Apical", "Diffuse")[as.numeric(domgrow.stemarea.full$tip_state)], levels = c("Apical", "Diffuse"))
+domgrow.stemarea.full$tip_state <- factor(c("Diffuse", "Apical")[as.numeric(domgrow.stemarea.full$tip_state)], levels = c("Diffuse", "Apical"))
 domgrow.stemarea.plot <- reshape2::melt(domgrow.stemarea.full)
 domgrow.stemarea.plot$value <- round(domgrow.stemarea.plot$value, 3)
 
